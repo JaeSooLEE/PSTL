@@ -1,14 +1,14 @@
 package pstl.util;
 
-public class Polution {
+public class Pollution {
 	private double value;
 	private String node;
 	
-	public Polution(double value, String node) {
+	public Pollution(double value, String node) {
 		this.value = value;
 		this.node = node;
 	}
-	public Polution(String node) {
+	public Pollution(String node) {
 		this.value = 100;
 		this.node = node;
 	}
