@@ -1,8 +1,10 @@
 package pstl.sensor;
 
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 
+@OfferedInterfaces(offered = { SensorCI.class })
 public class Sensor extends AbstractComponent {
 	public static final String SensorIP_URI = "sip-uri";
 	protected SensorInboundPort sip;
