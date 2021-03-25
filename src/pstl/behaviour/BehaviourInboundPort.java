@@ -15,6 +15,9 @@ public class BehaviourInboundPort extends AbstractInboundPort implements Behavio
 	public BehaviourInboundPort(String uri, ComponentI owner) throws Exception {
 		super(uri, BehaviourCI.class, owner);
 	}
+	
+	
+	
 	@Override
 	public int update(int state) throws Exception {
 		return this.getOwner().handleRequest(

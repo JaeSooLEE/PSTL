@@ -2,7 +2,6 @@ package pstl.actuator;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import pstl.behaviour.BehaviourCI;
 import pstl.util.Coord;
 
 public class ActuatorOutboundPort extends AbstractOutboundPort implements ActuatorCI {
