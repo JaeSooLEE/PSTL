@@ -2,6 +2,7 @@ package pstl.actuator;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import pstl.util.Coord;
 
 public class ActuatorInboundPort extends AbstractInboundPort implements ActuatorCI {
 	/**
@@ -16,13 +17,18 @@ public class ActuatorInboundPort extends AbstractInboundPort implements Actuator
 	}
 	
 	@Override
-	public void act(double var) throws Exception {
-		try {
-			this.getOwner().runTask(
-					a-> ((Actuator) a).act(var));
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
+	public void act(Coord c, double var) throws Exception {
+
+		this.getOwner().runTask(
+			a-> {
+				try {
+					((ActuatorCI) a).act(c,var);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
+	
 	}
 
 }

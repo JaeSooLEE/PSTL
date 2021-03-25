@@ -1,10 +1,7 @@
 package pstl.behaviour;
 
-import java.util.ArrayList;
-
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import pstl.util.Pollution;
 
 public class BehaviourOutboundPort extends AbstractOutboundPort implements BehaviourCI{
 	
@@ -16,29 +13,13 @@ public class BehaviourOutboundPort extends AbstractOutboundPort implements Behav
 		super(uri, BehaviourCI.class, owner);
 	}
 	@Override
-	public void loop() throws Exception {
-		try {
-			this.getOwner().runTask(
-					b-> ((Behaviour) b).loop());
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 		
+	public int update(int state) throws Exception {
+		
+		return ((BehaviourCI)this.getConnector()).update(state);
+		
 	}
-	@Override
-	public ArrayList<Pollution> TwoHopPolution() throws Exception {
-		return this.getOwner().handleRequest(
-				b -> ((Behaviour) b).TwoHopPolution());
-	}
-	@Override
-	public void updateTemp() throws Exception {
-		this.getOwner().runTask(
-				b-> {
-					try {
-						((Behaviour) b).updateTemp();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				});
-	}
+	
+	
+	
+
 }
