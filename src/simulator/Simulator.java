@@ -6,44 +6,102 @@ import java.util.Map.Entry;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import pstl.actuator.ActuatorCI;
+import pstl.actuator.ActuatorInboundPort;
+import pstl.actuator.ActuatorOutboundPort;
 import pstl.sensor.SensorCI;
+import pstl.sensor.SensorInboundPort;
 import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { SensorCI.class, ActuatorCI.class })
 public class Simulator extends AbstractComponent {
 	
+	public final String SIP_URI =     SensorInboundPort.generatePortURI();;
+	public final String AIP_URI = 	ActuatorOutboundPort.generatePortURI();
+	
+	private SensorInboundPort sip;
+	private ActuatorInboundPort aip;
+	
+	
 	int size = 10;
 	double tauxPropagation = 0.001;
 	double tauxDecipation = 0.00001;
-	double tauxChaufage = 0.001;
+	double tauxChaufage = 0.01;
 	
 	double[][] map = new double[size][size]; 
 	
 	Map<Coord, Double> heaterEffect = new HashMap<Coord, Double>();
 	
 	
+	
+	
 	protected Simulator() throws Exception {
 		super(1, 0);
 		initMap();
 		
+		this.sip = new SensorInboundPort(SIP_URI , this);
+		this.aip = new ActuatorInboundPort(AIP_URI , this);
 		
-		
-		/*
-		this.rip = new RegistrationInboundPort(RegIP_URI, this);
-		this.rip.publishPort();
-		*/
+		try {
+			this.sip.publishPort();
+			this.aip.publishPort();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		this.toggleLogging();
+		this.toggleTracing();
 	}
 	
 	
 	
+	
+	
+	@Override
+	public synchronized void execute() throws Exception {
+		super.execute();
+		while(true) {
+			this.propagate();
+			this.heat();
+		}
+	}
+
+
+
+
+
+	@Override
+	public synchronized void shutdown() throws ComponentShutdownException {
+		try {
+			this.sip.unpublishPort();
+			this.aip.unpublishPort();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+		super.shutdown();
+	}
+
+
+
+
+
+	@Override
+	public synchronized void finalise() throws Exception {
+		super.finalise();
+	}
+
+
+
+
+
 	public double sense(Coord c) throws Exception{
 		return map[c.x][c.y];
 	}
 	
 	
 	public void act(Coord c, double var) throws Exception{
-		heaterEffect.putIfAbsent(c, var);
+		heaterEffect.put(c, var);
 	}
 	
 	private void heat() {
