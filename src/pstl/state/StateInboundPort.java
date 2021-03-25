@@ -1,48 +1,50 @@
 package pstl.state;
 
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 
 public class StateInboundPort extends AbstractInboundPort implements StateCI {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5477044762728649467L;
+
 	public StateInboundPort(ComponentI owner) throws Exception {
-		super(StateInboundCI.class, owner);
-		// TODO Auto-generated constructor stub
+		super(StateCI.class, owner);
 	}
 
 	public StateInboundPort(String uri, ComponentI owner)
 			throws Exception {
-		super(uri, StateInboundCI.class, owner);
+		super(uri, StateCI.class, owner);
 		// TODO Auto-generated constructor stub
 	}
-
-	/*
-	public StateInboundPort(Class<? extends OfferedCI> implementedInterface, ComponentI owner, String pluginURI,
-			String executorServiceURI) throws Exception {
-		super(implementedInterface, owner, pluginURI, executorServiceURI);
-		// TODO Auto-generated constructor stub
-	}
-
-	public StateInboundPort(String uri, Class<? extends OfferedCI> implementedInterface, ComponentI owner,
-			String pluginURI, String executorServiceURI) throws Exception {
-		super(uri, implementedInterface, owner, pluginURI, executorServiceURI);
-		// TODO Auto-generated constructor stub
-	}
-	
-	*/
 	
 	
 	@Override
 	public void newState() throws Exception {
-		this.getOwner().handleRequest(
-				b -> ((StateCI) b).newState());
+		this.getOwner().runTask(
+				s-> {
+					try {
+						((StateCI) s).newState();
+					} catch (Exception e) {
+						
+						e.printStackTrace();
+					}
+				});
 	}
 
 	@Override
 	public void neighState(String address, double value) throws Exception{
-		this.getOwner().handleRequest(
-				b -> ((StateCI) b).neighState(address, value));
+		this.getOwner().runTask(
+				s-> {
+					try {
+						((StateCI) s).neighState(address, value);
+					} catch (Exception e) {
+						
+						e.printStackTrace();
+					}
+				});
 	}
 
 }

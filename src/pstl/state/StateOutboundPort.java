@@ -1,11 +1,15 @@
 package pstl.state;
 
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import pstl.behaviour.BehaviourCI;
 
 public class StateOutboundPort extends AbstractOutboundPort implements StateCI {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4155493516822640173L;
+
 
 	public StateOutboundPort(ComponentI owner) throws Exception {
 		super(StateCI.class, owner);
@@ -20,7 +24,7 @@ public class StateOutboundPort extends AbstractOutboundPort implements StateCI {
 
 	@Override
 	public void neighState(String address, double value) throws Exception{
-		return ((StateCI)this.getConnector()).neighState(address, value);
+		((StateCI)this.getConnector()).neighState(address, value);
 		
 	}
 	
@@ -28,7 +32,7 @@ public class StateOutboundPort extends AbstractOutboundPort implements StateCI {
 	@Override
 	public void newState() throws Exception {
 		
-		return ((StateCI)this.getConnector()).newState();
+		((StateCI)this.getConnector()).newState();
 		
 	}
 	
