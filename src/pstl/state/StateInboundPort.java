@@ -4,7 +4,7 @@ import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 
-public class StateInboundPort extends AbstractInboundPort implements StateInboundCI {
+public class StateInboundPort extends AbstractInboundPort implements StateCI {
 
 	public StateInboundPort(ComponentI owner) throws Exception {
 		super(StateInboundCI.class, owner);
@@ -31,17 +31,18 @@ public class StateInboundPort extends AbstractInboundPort implements StateInboun
 	}
 	
 	*/
-
+	
+	
 	@Override
-	public int getPollution() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void newState() throws Exception {
+		this.getOwner().handleRequest(
+				b -> ((StateCI) b).newState());
 	}
 
 	@Override
-	public void changeTemperature(double temp) {
-		// TODO Auto-generated method stub
-
+	public void neighState(String address, double value) throws Exception{
+		this.getOwner().handleRequest(
+				b -> ((StateCI) b).neighState(address, value));
 	}
 
 }

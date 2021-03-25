@@ -3,30 +3,38 @@ package pstl.state;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import pstl.behaviour.BehaviourCI;
 
-public class StateOutboundPort extends AbstractOutboundPort implements StateOutboundCI {
+public class StateOutboundPort extends AbstractOutboundPort implements StateCI {
 
 	public StateOutboundPort(ComponentI owner) throws Exception {
-		super(StateOutboundCI.class, owner);
+		super(StateCI.class, owner);
 		// TODO Auto-generated constructor stub
 	}
 
 	public StateOutboundPort(String uri, ComponentI owner)
 			throws Exception {
-		super(uri, StateOutboundCI.class, owner);
+		super(uri, StateCI.class, owner);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public int getSensorValue() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void neighState(String address, double value) throws Exception{
+		return ((StateCI)this.getConnector()).neighState(address, value);
+		
 	}
-
+	
+	
 	@Override
-	public void setActuator(double temp) {
-		// TODO Auto-generated method stub
-
+	public void newState() throws Exception {
+		
+		return ((StateCI)this.getConnector()).newState();
+		
 	}
+	
+	
+	
+
+
 
 }
