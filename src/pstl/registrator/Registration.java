@@ -9,6 +9,7 @@ import cps.registration.RegistrationCI;
 import cps.registration.RegistrationInboundPort;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import pstl.util.Coord;
 
 
 @OfferedInterfaces(offered = { RegistratorCI.class })
@@ -33,7 +34,7 @@ public class Registration extends AbstractComponent {
 	
 	
 	
-	public ArrayList<String> getHeaters(Coord thermo) throws Exception{
+	public Set<String> getHeaters(Coord thermo) throws Exception{
 		return heaters;
 	}
 	

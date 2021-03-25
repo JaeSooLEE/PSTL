@@ -1,6 +1,7 @@
 package pstl.registrator;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import pstl.util.Coord;
@@ -14,7 +15,7 @@ public class RegistrationOutboundPort extends AbstractOutboundPort implements Re
 	}
 
 	@Override
-	public ArrayList<String> getHeaters(Coord thermo) throws Exception {
+	public Set<String> getHeaters(Coord thermo) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
