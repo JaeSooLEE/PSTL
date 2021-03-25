@@ -1,17 +1,17 @@
 package pstl.actuator;
 
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import fr.sorbonne_u.components.ports.AbstractInboundPort;
 
-public class ActuatorOutboundPort extends AbstractOutboundPort implements ActuatorCI {
+public class ActuatorInboundPort extends AbstractInboundPort implements ActuatorCI {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public ActuatorOutboundPort(ComponentI owner) throws Exception {
+	public ActuatorInboundPort(ComponentI owner) throws Exception {
 		super(ActuatorCI.class, owner);
 	}
-	public ActuatorOutboundPort(String uri, ComponentI owner) throws Exception {
+	public ActuatorInboundPort(String uri, ComponentI owner) throws Exception {
 		super(uri, ActuatorCI.class, owner);
 	}
 	
@@ -26,3 +26,5 @@ public class ActuatorOutboundPort extends AbstractOutboundPort implements Actuat
 	}
 
 }
+
+
