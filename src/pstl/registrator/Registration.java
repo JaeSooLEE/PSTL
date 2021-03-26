@@ -1,7 +1,9 @@
 package pstl.registrator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import cps.info.ConnectionInfo;
@@ -17,7 +19,7 @@ import pstl.util.Coord;
 public class Registration extends AbstractComponent {
 	
 	public static final String RegIP_URI = "rip-uri";
-	private Set<String> heaters = new HashSet<>();
+	private Map<String, Coord> heaters = new HashMap<>();
 	protected RegistrationInboundPort rip;
 
 	protected Registration() throws Exception {
@@ -36,6 +38,17 @@ public class Registration extends AbstractComponent {
 	
 	public Set<String> getHeaters(Coord thermo) throws Exception{
 		return heaters;
+	}
+	
+	public Set<String> getRoomHeaters(int n){
+		Set<String> res = new HashSet<>();
+		switch(n) {
+		case 1:
+			for(String s : heaters) {
+				if()
+			}
+		}
+			
 	}
 	
 	
