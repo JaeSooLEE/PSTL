@@ -21,7 +21,7 @@ public class CommunicationOutboundPort extends AbstractOutboundPort implements C
 	
 	
 	@Override
-	public void communicate(String address, String message) throws Exception {
+	public void communicate(int address, double message) throws Exception {
 		((CommunicationCI)this.getConnector()).communicate(address, message);
 		
 	}

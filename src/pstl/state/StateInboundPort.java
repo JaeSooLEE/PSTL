@@ -22,16 +22,10 @@ public class StateInboundPort extends AbstractInboundPort implements StateCI {
 	
 	
 	@Override
-	public void newState() throws Exception {
-		this.getOwner().runTask(
-				s-> {
-					try {
-						((StateCI) s).newState();
-					} catch (Exception e) {
-						
-						e.printStackTrace();
-					}
-				});
+	public int newState(int state) throws Exception {
+		return this.getOwner().handleRequest(
+				s -> ((StateCI) s).newState(state));
+	
 	}
 
 	@Override

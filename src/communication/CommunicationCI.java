@@ -5,6 +5,6 @@ import fr.sorbonne_u.components.interfaces.RequiredCI;
 
 public interface CommunicationCI extends OfferedCI, RequiredCI {
 	
-	public void communicate(String address, String message) throws Exception;
+	public void communicate(int address, double message) throws Exception;
 	
 }

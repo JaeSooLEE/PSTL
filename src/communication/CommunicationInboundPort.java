@@ -17,7 +17,7 @@ public class CommunicationInboundPort  extends AbstractInboundPort implements Co
 		super(uri, BehaviourCI.class, owner);
 	}
 	@Override
-	public void communicate(String address, String message) throws Exception {
+	public void communicate(int address, double message) throws Exception {
 
 		this.getOwner().runTask(
 				c-> {
