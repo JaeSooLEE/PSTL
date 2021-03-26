@@ -105,6 +105,7 @@ public class Thermometer extends AbstractComponent {
 			String uriTempR = RegistrationOutboundPort.generatePortURI();
 			RegistrationOutboundPort rp = new RegistrationOutboundPort(uriTempR, this);
 			
+			
 		}
 		
 		while(true) {
