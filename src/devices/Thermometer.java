@@ -28,7 +28,7 @@ import pstl.util.Coord;
 public class Thermometer extends AbstractComponent {
 	
 	public static final String RegOP_URI = RegistrationOutboundPort.generatePortURI();
-	public final String SOP_URI = SensorOutboundPort.generatePortURI();
+	public static final String SOP_URI = SensorOutboundPort.generatePortURI();
 	public final String SIP_URI = SensorInboundPort.generatePortURI();
 	public final String STOP_URI = StateOutboundPort.generatePortURI();
 	public final String STIP_URI = StateInboundPort.generatePortURI();

@@ -17,8 +17,8 @@ import pstl.util.Coord;
 @OfferedInterfaces(offered = { SensorCI.class, ActuatorCI.class })
 public class Simulator extends AbstractComponent {
 	
-	public final String SIP_URI =     SensorInboundPort.generatePortURI();;
-	public final String AIP_URI = 	ActuatorOutboundPort.generatePortURI();
+	public static final String SIP_URI =     SensorInboundPort.generatePortURI();;
+	public static final String AIP_URI = 	ActuatorOutboundPort.generatePortURI();
 	
 	private SensorInboundPort sip;
 	private ActuatorInboundPort aip;

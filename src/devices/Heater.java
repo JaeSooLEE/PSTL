@@ -30,7 +30,7 @@ import pstl.util.Coord;
 public class Heater extends AbstractComponent {
 	
 	public static final String RegOP_URI = RegistrationOutboundPort.generatePortURI();
-	public final String AOP_URI = ActuatorOutboundPort.generatePortURI();
+	public static final String AOP_URI = ActuatorOutboundPort.generatePortURI();
 	public final String AIP_URI = ActuatorInboundPort.generatePortURI();
 	public final String STOP_URI = StateOutboundPort.generatePortURI();
 	public final String STIP_URI = StateInboundPort.generatePortURI();
@@ -57,7 +57,7 @@ public class Heater extends AbstractComponent {
 		return Thermometer.count;
 	} 
 	
-	private int myID = Thermometer.genID();
+	//private int myID = Thermometer.genID();
 	private Coord location;
 	
 	private int state;
