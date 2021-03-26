@@ -6,6 +6,7 @@ import java.util.Set;
 import communication.CommunicationCI;
 import communication.CommunicationInboundPort;
 import communication.CommunicationOutboundPort;
+import cps.connecteurs.CommunicationConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
@@ -97,16 +98,24 @@ public class Thermometer extends AbstractComponent {
 		this.toggleTracing();
 	}
 
+	
+	public void connectHeaters() {
+		Set<String> hts = regop.getHeaters(location);
+		for(String s : hts) {
+			String uriTempR = CommunicationOutboundPort.generatePortURI();
+			CommunicationOutboundPort rp = new CommunicationOutboundPort(uriTempR, this);
+			rp.publishPort();
+			this.doPortConnection(uriTempR, hts,
+					CommunicationConnector.class.getCanonicalName());
+			heaters.add(rp);
+			
+		}
+	}
+	
 	@Override
 	public synchronized void execute() throws Exception {
 		super.execute();
-		Set<String> hts = regop.getHeaters(location);
-		for(String s : hts) {
-			String uriTempR = RegistrationOutboundPort.generatePortURI();
-			RegistrationOutboundPort rp = new RegistrationOutboundPort(uriTempR, this);
-			
-			
-		}
+		
 		
 		while(true) {
 			this.newState();
