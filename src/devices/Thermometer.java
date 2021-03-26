@@ -100,6 +100,12 @@ public class Thermometer extends AbstractComponent {
 	@Override
 	public synchronized void execute() throws Exception {
 		super.execute();
+		Set<String> hts = regop.getHeaters(location);
+		for(String s : hts) {
+			String uriTempR = RegistrationOutboundPort.generatePortURI();
+			RegistrationOutboundPort rp = new RegistrationOutboundPort(uriTempR, this);
+			
+		}
 		
 		while(true) {
 			this.newState();
@@ -167,4 +173,6 @@ public class Thermometer extends AbstractComponent {
 		}
 		
 	}
+	
+	
 }
