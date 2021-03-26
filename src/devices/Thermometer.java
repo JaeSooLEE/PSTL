@@ -59,6 +59,8 @@ public class Thermometer extends AbstractComponent {
 	private Coord location;
 	private double myTemp;
 	
+	private int state;
+	
 	private Set<CommunicationOutboundPort> heaters = new HashSet<CommunicationOutboundPort>();
 	
 	protected Thermometer(Coord c) throws Exception {
@@ -98,6 +100,10 @@ public class Thermometer extends AbstractComponent {
 	@Override
 	public synchronized void execute() throws Exception {
 		super.execute();
+		
+		while(true) {
+			this.newState();
+		}
 	}
 
 	@Override
@@ -115,7 +121,7 @@ public class Thermometer extends AbstractComponent {
 	
 	public void communicate(int address, double message) throws Exception{
 		for(CommunicationOutboundPort p : heaters) {
-			p.communicate(myID, myTemp);
+			p.communicate(address, message);
 		}
 	}
 	
@@ -124,19 +130,32 @@ public class Thermometer extends AbstractComponent {
 	}
 	
 	public int update(int state) throws Exception{
-		return 0;
-	}
-	
-	public void neighState(String address, double value) throws Exception{
-		
-	}
-	public void newState(int state) throws Exception{
 		if(state == 1) {
 			return 2;
 		}
+		else {
 		if(state == 2) {
 			return 1;
 		}
+		else {
+			return 0;
+		}}
+	}
+	
+	//public void neighState(String address, double value) throws Exception{
+	//}
+	
+	
+	public void newState() throws Exception{
+		this.state = update(state);
+		
+		if(state == 1) {
+			getTemp();
+		}
+		if(state == 2) {
+			communicate(myID, myTemp);
+		}
+	
 	}
 	
 	

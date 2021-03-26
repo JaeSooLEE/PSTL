@@ -1,36 +1,47 @@
 package pstl.registrator;
 
-import java.util.ArrayList;
 import java.util.Set;
 
-import cps.registration.RegistrationCI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import pstl.util.Coord;
 
-public class RegistrationInboundPort extends AbstractInboundPort implements RegistratorCI {
+public class RegistrationInboundPort extends AbstractInboundPort implements RegistrationCI {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3934975392496197191L;
 
 	public RegistrationInboundPort(ComponentI owner) throws Exception {
-		super(RegistratorCI.class, owner);
+		super(RegistrationCI.class, owner);
 
 	}
 
 	public RegistrationInboundPort(String uri, ComponentI owner) throws Exception {
-		super(uri, RegistratorCI.class, owner);
-		// TODO Auto-generated constructor stub
+		super(uri, RegistrationCI.class, owner);
 	}
 	
 	
 	@Override
 	public void registerHeater(Coord c, String ipURI) throws Exception {
-		// TODO Auto-generated method stub
+		this.getOwner().runTask(
+				s-> {
+					try {
+						((RegistrationCI) s).registerHeater(c, ipURI);
+					} catch (Exception e) {
+						
+						e.printStackTrace();
+					}
+				});
 
 	}
 
 	@Override
 	public Set<String> getHeaters(Coord thermo) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getOwner().handleRequest(
+				s -> ((RegistrationCI) s).getHeaters(thermo));
 	}
+	
 
 }

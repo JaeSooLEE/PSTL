@@ -30,9 +30,9 @@ public class StateOutboundPort extends AbstractOutboundPort implements StateCI {
 	
 	
 	@Override
-	public int newState(int state) throws Exception {
+	public void newState() throws Exception {
 		
-		return ((StateCI)this.getConnector()).newState(state);
+		((StateCI)this.getConnector()).newState();
 		
 	}
 	
