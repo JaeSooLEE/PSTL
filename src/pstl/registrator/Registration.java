@@ -13,11 +13,10 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import pstl.util.Coord;
 
-
 @OfferedInterfaces(offered = { RegistratorCI.class })
 @RequiredInterfaces(required = { RegistratorCI.class })
 public class Registration extends AbstractComponent {
-	
+
 	public static final String RegIP_URI = "rip-uri";
 	private Map<String, Coord> heaters = new HashMap<>();
 	protected RegistrationInboundPort rip;
@@ -28,28 +27,46 @@ public class Registration extends AbstractComponent {
 		this.rip.publishPort();
 	}
 
-	
-	public void registerHeater(String ipURI) throws Exception{
-		heaters.add(ipURI);
+	public void registerHeater(Coord c, String ipURI) throws Exception {
+		heaters.put(ipURI, c);
 	}
-	
-	
-	
-	
-	public Set<String> getHeaters(Coord thermo) throws Exception{
-		return heaters;
+
+	public Set<String> getHeaters(Coord thermo) throws Exception {
+		if(thermo.y > 7) return getRoomHeaters(3);
+		if(thermo.x < 5) return getRoomHeaters(1);
+		if(thermo.x > 5) return getRoomHeaters(2);
+		return null;
 	}
-	
-	public Set<String> getRoomHeaters(int n){
+
+	public Set<String> getRoomHeaters(int n) {
 		Set<String> res = new HashSet<>();
-		switch(n) {
+		switch (n) {
 		case 1:
-			for(String s : heaters) {
-				if()
+			for (String s : heaters.keySet()) {
+				if (heaters.get(s).y < 8) {
+					if (heaters.get(s).x < 5) {
+						res.add(s);
+					}
+				}
+			}
+			break;
+		case 2:
+			for (String s : heaters.keySet()) {
+				if (heaters.get(s).y < 8) {
+					if (heaters.get(s).x > 5) {
+						res.add(s);
+					}
+				}
+			}
+
+		case 3:
+			for (String s : heaters.keySet()) {
+				if (heaters.get(s).y > 7) {
+					res.add(s);
+				}
+
 			}
 		}
-			
 	}
-	
-	
+
 }

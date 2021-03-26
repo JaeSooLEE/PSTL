@@ -22,7 +22,7 @@ public class RegistrationOutboundPort extends AbstractOutboundPort implements Re
 	
 	
 	@Override
-	public void registerHeater(String ipURI) throws Exception {
+	public void registerHeater(Coord c, String ipURI) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
