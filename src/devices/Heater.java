@@ -17,6 +17,7 @@ import pstl.actuator.ActuatorOutboundPort;
 import pstl.behaviour.BehaviourCI;
 import pstl.behaviour.BehaviourInboundPort;
 import pstl.behaviour.BehaviourOutboundPort;
+import pstl.registrator.RegistrationCI;
 import pstl.registrator.RegistrationOutboundPort;
 import pstl.sensor.SensorInboundPort;
 import pstl.state.StateCI;
@@ -25,7 +26,7 @@ import pstl.state.StateOutboundPort;
 import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { ActuatorCI.class, StateCI.class, BehaviourCI.class, CommunicationCI.class })
-@RequiredInterfaces(required = {ActuatorCI.class, BehaviourCI.class, CommunicationCI.class })
+@RequiredInterfaces(required = {RegistrationCI.class, ActuatorCI.class, BehaviourCI.class, CommunicationCI.class })
 
 public class Heater extends AbstractComponent {
 	
@@ -100,7 +101,7 @@ public class Heater extends AbstractComponent {
 	@Override
 	public synchronized void execute() throws Exception {
 		super.execute();
-		
+		registerHeater(location, CIP_URI);
 		while(true) {
 			this.newState();
 		}
@@ -156,7 +157,9 @@ public class Heater extends AbstractComponent {
 	
 	//public void neighState(String address, double value) throws Exception{
 	//}
-	
+	public void registerHeater(Coord c, String ipURI) throws Exception{
+		regop.registerHeater(c, ipURI);
+	}
 	
 	public void newState() throws Exception{
 		this.state = update(state);

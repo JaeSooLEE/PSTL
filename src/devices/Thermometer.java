@@ -6,7 +6,7 @@ import java.util.Set;
 import communication.CommunicationCI;
 import communication.CommunicationInboundPort;
 import communication.CommunicationOutboundPort;
-import cps.connecteurs.CommunicationConnector;
+import connecteurs.CommunicationConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
@@ -14,6 +14,7 @@ import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import pstl.behaviour.BehaviourCI;
 import pstl.behaviour.BehaviourInboundPort;
 import pstl.behaviour.BehaviourOutboundPort;
+import pstl.registrator.RegistrationCI;
 import pstl.registrator.RegistrationOutboundPort;
 import pstl.sensor.SensorCI;
 import pstl.sensor.SensorInboundPort;
@@ -24,7 +25,7 @@ import pstl.state.StateOutboundPort;
 import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { SensorCI.class, StateCI.class, BehaviourCI.class, CommunicationCI.class })
-@RequiredInterfaces(required = { SensorCI.class, StateCI.class, BehaviourCI.class, CommunicationCI.class })
+@RequiredInterfaces(required = {RegistrationCI.class, SensorCI.class, StateCI.class, BehaviourCI.class, CommunicationCI.class })
 
 public class Thermometer extends AbstractComponent {
 	
@@ -99,14 +100,13 @@ public class Thermometer extends AbstractComponent {
 	}
 
 	
-	public void connectHeaters() {
+	public void connectHeaters() throws Exception {
 		Set<String> hts = regop.getHeaters(location);
 		for(String s : hts) {
 			String uriTempR = CommunicationOutboundPort.generatePortURI();
 			CommunicationOutboundPort rp = new CommunicationOutboundPort(uriTempR, this);
 			rp.publishPort();
-			this.doPortConnection(uriTempR, hts,
-					CommunicationConnector.class.getCanonicalName());
+			this.doPortConnection(uriTempR, s, CommunicationConnector.class.getCanonicalName());
 			heaters.add(rp);
 			
 		}
@@ -116,9 +116,10 @@ public class Thermometer extends AbstractComponent {
 	public synchronized void execute() throws Exception {
 		super.execute();
 		
-		
+		connectHeaters();
 		while(true) {
 			this.newState();
+			this.logMessage(String.valueOf(myTemp));
 		}
 	}
 
