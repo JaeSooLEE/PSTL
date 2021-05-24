@@ -1,126 +1,155 @@
 package devices;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import communication.CommunicationCI;
+import communication.CommunicationI;
 import communication.CommunicationInboundPort;
 import communication.CommunicationOutboundPort;
-import connecteurs.CommunicationConnector;
+import communication.CommunicatorT;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
-import pstl.behaviour.BehaviourCI;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import pstl.behaviour.Behaviour;
+import pstl.behaviour.BehaviourI;
 import pstl.behaviour.BehaviourInboundPort;
-import pstl.behaviour.BehaviourOutboundPort;
 import pstl.registrator.RegistrationCI;
 import pstl.registrator.RegistrationOutboundPort;
-import pstl.sensor.SensorCI;
+import pstl.sensor.Sensor;
 import pstl.sensor.SensorInboundPort;
-import pstl.sensor.SensorOutboundPort;
 import pstl.state.StateCI;
 import pstl.state.StateInboundPort;
-import pstl.state.StateOutboundPort;
+import pstl.state.StateT;
+import pstl.util.Address;
 import pstl.util.Coord;
 
-@OfferedInterfaces(offered = { SensorCI.class, StateCI.class, BehaviourCI.class, CommunicationCI.class })
-@RequiredInterfaces(required = {RegistrationCI.class, SensorCI.class, StateCI.class, BehaviourCI.class, CommunicationCI.class })
+@OfferedInterfaces(offered = { StateCI.class,  CommunicationCI.class })
+@RequiredInterfaces(required = {RegistrationCI.class, StateCI.class,  CommunicationCI.class })
 
-public class Thermometer extends AbstractComponent {
+public class Thermometer extends AbstractComponent implements CommunicationI{
+
+	private Address address;
+	private Coord location;
+	private int room;
 	
 	public static final String RegOP_URI = RegistrationOutboundPort.generatePortURI();
-	public static final String SOP_URI = SensorOutboundPort.generatePortURI();
-	public final String SIP_URI = SensorInboundPort.generatePortURI();
-	public final String STOP_URI = StateOutboundPort.generatePortURI();
-	public final String STIP_URI = StateInboundPort.generatePortURI();
-	public final String BOP_URI = BehaviourOutboundPort.generatePortURI();
-	public final String BIP_URI = BehaviourInboundPort.generatePortURI();
+	
+
 	public final String COP_URI = CommunicationOutboundPort.generatePortURI();
 	public final String CIP_URI = CommunicationInboundPort.generatePortURI();
+	public final String STATE_CIP_URI = CommunicationInboundPort.generatePortURI();
 	
-	public final String SIMIP_URI = SensorInboundPort.generatePortURI();
+	//subcomponent
+	public String SUB_SENSOR_URI;
+	public final String SUB_SIP_URI = SensorInboundPort.generatePortURI();
+	private SensorInboundPort sub_sip;
+	
+
+	public final String SUB_BIP_URI = BehaviourInboundPort.generatePortURI();
+
+	
+	public String SUB_STATE_URI;
+	public final String SUB_STIP_URI = StateInboundPort.generatePortURI();
+	protected StateInboundPort sub_stip;
+
+	public String SUB_COM_URI;
+	public final String SUB_CIP_URI = CommunicationInboundPort.generatePortURI();
+	protected CommunicationInboundPort sub_cip;
 	
 	private RegistrationOutboundPort regop;
-	private SensorOutboundPort sop;
-	private SensorInboundPort sip;
-	private StateOutboundPort stop;
-	private StateInboundPort stip;
-	private BehaviourOutboundPort bop;
-	private BehaviourInboundPort bip;
 	private CommunicationOutboundPort cop;
 	private CommunicationInboundPort cip;
 	
-	public static int count = 0;
-	public static int genID() {
-		Thermometer.count++;
-		return Thermometer.count;
-	} 
 	
-	private int myID = Thermometer.genID();
-	private Coord location;
-	private double myTemp;
+
+	// pooling 
+	protected static final String	POOL_URI = "computations pool" ;
+	protected static final int		NTHREADS = 3 ;
 	
-	private int state;
 	
-	private Set<CommunicationOutboundPort> heaters = new HashSet<CommunicationOutboundPort>();
-	
-	protected Thermometer(Coord c) throws Exception {
+	protected Thermometer(Address address, Coord location, int room) throws Exception  {
 		super(1, 0);
-		this.location = c;
-		this.getTemp();
+		this.address=address;
+		this.location=location;
+		this.room=room;
+		
+		
 		try {
-			this.regop = new RegistrationOutboundPort(RegOP_URI, this);
-			this.sop = new SensorOutboundPort(SOP_URI, this);
-			this.sip = new SensorInboundPort(SIP_URI, this);
-			this.stop = new StateOutboundPort(STOP_URI, this);
-			this.stip = new StateInboundPort(STIP_URI, this);
-			this.bop = new BehaviourOutboundPort(BOP_URI, this);
-			this.bip = new BehaviourInboundPort(BIP_URI, this);
-			this.cop = new CommunicationOutboundPort(COP_URI, this);
-			this.cip = new CommunicationInboundPort(CIP_URI, this);
-		} catch (Exception e1) {
-			e1.printStackTrace();
+			this.initialise();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		try {
-			this.regop.publishPort();
-			this.sop.publishPort();
-			this.sip.publishPort();
-			this.stop.publishPort();
-			this.stip.publishPort();
-			this.bop.publishPort();
-			this.bip.publishPort();
-			this.cop.publishPort();
-			this.cip.publishPort();
-		} catch (Exception e2) {
-			e2.printStackTrace();
-		}
-		this.toggleLogging();
-		this.toggleTracing();
+		
+		
 	}
 
-	
-	public void connectHeaters() throws Exception {
-		Set<String> hts = regop.getHeaters(location);
-		for(String s : hts) {
-			String uriTempR = CommunicationOutboundPort.generatePortURI();
-			CommunicationOutboundPort rp = new CommunicationOutboundPort(uriTempR, this);
-			rp.publishPort();
-			this.doPortConnection(uriTempR, s, CommunicationConnector.class.getCanonicalName());
-			heaters.add(rp);
-			
-		}
+	protected void initialise() throws Exception {
+		this.regop = new RegistrationOutboundPort(RegOP_URI, this);
+		this.cop = new CommunicationOutboundPort(COP_URI, this);
+		this.cip = new CommunicationInboundPort(CIP_URI, this);
+		
+		
+		this.regop.publishPort();
+		this.cop.publishPort();
+		this.cip.publishPort();
+		
+		this.SUB_SENSOR_URI = this.createSubcomponent(Sensor.class.getCanonicalName(), new Object[]{this.SUB_SIP_URI}) ;
+		this.SUB_COM_URI = this.createSubcomponent(CommunicatorT.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_CIP_URI, this.CIP_URI, this.STATE_CIP_URI});
+		this.SUB_STATE_URI = this.createSubcomponent(StateT.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_STIP_URI, this.SUB_BIP_URI, this.STATE_CIP_URI, this.SUB_CIP_URI}) ;
+
+		this.createNewExecutorService(POOL_URI, NTHREADS, false) ;
+		
+		
+		
+		
+		
 	}
+	
+	
+	
+	
+	
+	
+	
+	@Override
+	public synchronized void start() throws ComponentStartException {
+		super.start();
+		
+		try {
+			
+			this.sub_sip =(SensorInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_SENSOR_URI,this.SUB_SIP_URI) ;
+			this.sub_stip =(StateInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_STATE_URI,this.SUB_STIP_URI) ;
+			this.sub_cip =(CommunicationInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_COM_URI,this.SUB_CIP_URI) ;
+		} catch (Exception e) {
+			throw new ComponentStartException(e) ;
+		}
+
+	}
+
+
 	
 	@Override
 	public synchronized void execute() throws Exception {
 		super.execute();
+		this.runTaskOnComponent(
+				POOL_URI,
+				new AbstractComponent.AbstractTask() {
+					
+					@Override
+					public void run() {
+						try {
+							int i=0;
+							while(i<10) {
+							Thread.sleep(400L) ;
+							nS();
+							}	
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						}});
 		
-		connectHeaters();
-		while(true) {
-			this.newState();
-			this.logMessage(String.valueOf(myTemp));
-		}
+		
+		
 	}
 
 	@Override
@@ -136,54 +165,21 @@ public class Thermometer extends AbstractComponent {
 	
 	
 	
-	public void communicate(int address, double message) throws Exception{
-		for(CommunicationOutboundPort p : heaters) {
-			p.communicate(address, message);
-		}
+	public String  communicate(Address address, String code, double val, String body) throws Exception{
+		return "KO";
 	}
 	
-	public double sense(Coord c) throws Exception{
-		return this.myTemp;
-	}
-	
-	public int update(int state) throws Exception{
-		if(state == 1) {
-			return 2;
-		}
-		else {
-		if(state == 2) {
-			return 1;
-		}
-		else {
-			return 0;
-		}}
-	}
-	
-	//public void neighState(String address, double value) throws Exception{
-	//}
 	
 	
-	public void newState() throws Exception{
-		this.state = update(state);
+	
+	public void nS() throws Exception{
 		
-		if(state == 1) {
-			getTemp();
-		}
-		if(state == 2) {
-			communicate(myID, myTemp);
-		}
+		this.sub_stip.newState();
 	
 	}
 	
 	
-	public void getTemp() {
-		try {
-			this.myTemp = sop.sense(location);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
+	
 	
 	
 }

@@ -13,9 +13,9 @@ public class BehaviourOutboundPort extends AbstractOutboundPort implements Behav
 		super(uri, BehaviourCI.class, owner);
 	}
 	@Override
-	public int update(int state) throws Exception {
+	public int update(int state, double val) throws Exception {
 		
-		return ((BehaviourCI)this.getConnector()).update(state);
+		return ((BehaviourCI)this.getConnector()).update(state, val);
 		
 	}
 	

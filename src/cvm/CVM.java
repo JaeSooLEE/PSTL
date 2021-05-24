@@ -1,13 +1,12 @@
 package cvm;
 
-import connecteurs.ActuatorConnector;
-import connecteurs.RegistrationConnector;
-import connecteurs.SensorConnector;
 import devices.Heater;
 import devices.Thermometer;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+import pstl.cloud.Cloud;
 import pstl.registrator.Registrator;
+import pstl.util.Address;
 import pstl.util.Coord;
 import simulator.Simulator;
 
@@ -25,19 +24,20 @@ public class CVM extends AbstractCVM {
 		
 		AbstractComponent.createComponent(Registrator.class.getCanonicalName(), new Object[] {});
 		AbstractComponent.createComponent(Simulator.class.getCanonicalName(), new Object[] {});
+		AbstractComponent.createComponent(Cloud.class.getCanonicalName(), new Object[] {});
 		
-		for(int i=0; i<8;i++) {
+		for(int i=0; i<1;i++) {
 
-			therm[i] = AbstractComponent.createComponent(Thermometer.class.getCanonicalName(), new Object[] {new Coord((int)Math.random()*10,(int)Math.random()*10)});
-			this.doPortConnection(therm[i],Thermometer.RegOP_URI , Registrator.RegIP_URI, RegistrationConnector.class.getCanonicalName());
-			this.doPortConnection(therm[i],Thermometer.SOP_URI , Simulator.SIP_URI, SensorConnector.class.getCanonicalName());
+			therm[i] = AbstractComponent.createComponent(Thermometer.class.getCanonicalName(), new Object[] {new Address("T0", true, false), new Coord(1, 1), 1});
+			//this.doPortConnection(therm[i],Thermometer.RegOP_URI , Registrator.RegIP_URI, RegistrationConnector.class.getCanonicalName());
+			//this.doPortConnection(therm[i],Thermometer.SOP_URI , Simulator.SIP_URI, SensorConnector.class.getCanonicalName());
 		} 
 		
-		for(int i=0; i<2;i++) {
+		for(int i=0; i<1;i++) {
 
-			heat[i] = AbstractComponent.createComponent(Heater.class.getCanonicalName(), new Object[] {new Coord((int)Math.random()*10,(int)Math.random()*10)});
-			this.doPortConnection(heat[i],Heater.RegOP_URI , Registrator.RegIP_URI, RegistrationConnector.class.getCanonicalName());
-			this.doPortConnection(heat[i],Heater.AOP_URI , Simulator.AIP_URI, ActuatorConnector.class.getCanonicalName());
+			heat[i] = AbstractComponent.createComponent(Heater.class.getCanonicalName(), new Object[] {new Address("H0", false, true), new Coord(3, 3), 1});
+			//this.doPortConnection(heat[i],Heater.RegOP_URI , Registrator.RegIP_URI, RegistrationConnector.class.getCanonicalName());
+			//this.doPortConnection(heat[i],Heater.AOP_URI , Simulator.AIP_URI, ActuatorConnector.class.getCanonicalName());
 		} 
 		
 		

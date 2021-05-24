@@ -6,8 +6,8 @@ import pstl.behaviour.BehaviourCI;
 public class BehaviourConnector extends AbstractConnector implements BehaviourCI{
 
 	@Override
-	public int update(int state) throws Exception {
-		return ((BehaviourCI)this.offering).update(state);
+	public int update(int state, double val) throws Exception {
+		return ((BehaviourCI)this.offering).update(state, val);
 	}
 
 }

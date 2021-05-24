@@ -26,7 +26,7 @@ public class StateInboundPort extends AbstractInboundPort implements StateCI {
 		this.getOwner().runTask(
 				s-> {
 					try {
-						((StateCI) s).newState();
+						((StateI) s).newState();
 					} catch (Exception e) {
 						
 						e.printStackTrace();

@@ -25,5 +25,10 @@ public class Coord {
                 && Double.compare(y, c.y) == 0;
     }
 	
+	
+	@Override
+	public String toString() {
+		return "Coord[" + this.x + ", " + this.y+"]";
+	}
 
 }

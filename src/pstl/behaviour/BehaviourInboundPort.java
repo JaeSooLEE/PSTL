@@ -19,9 +19,9 @@ public class BehaviourInboundPort extends AbstractInboundPort implements Behavio
 	
 	
 	@Override
-	public int update(int state) throws Exception {
+	public int update(int state, double val) throws Exception {
 		return this.getOwner().handleRequest(
-				b -> ((BehaviourCI) b).update(state));
+				b -> ((BehaviourI) b).update(state, val));
 	}
 
 }

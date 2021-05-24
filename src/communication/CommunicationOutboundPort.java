@@ -3,6 +3,7 @@ package communication;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import pstl.behaviour.BehaviourCI;
+import pstl.util.Address;
 
 public class CommunicationOutboundPort extends AbstractOutboundPort implements CommunicationCI{
 	
@@ -21,8 +22,8 @@ public class CommunicationOutboundPort extends AbstractOutboundPort implements C
 	
 	
 	@Override
-	public void communicate(int address, double message) throws Exception {
-		((CommunicationCI)this.getConnector()).communicate(address, message);
+	public String communicate(Address address, String code, double val, String body) throws Exception {
+		return ((CommunicationCI)this.getConnector()).communicate(address, code, val, body);
 		
 	}
 

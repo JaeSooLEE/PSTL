@@ -4,6 +4,7 @@ import java.util.Set;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import pstl.util.Address;
 import pstl.util.Coord;
 
 public class RegistrationInboundPort extends AbstractInboundPort implements RegistrationCI {
@@ -24,11 +25,11 @@ public class RegistrationInboundPort extends AbstractInboundPort implements Regi
 	
 	
 	@Override
-	public void registerHeater(Coord c, String ipURI) throws Exception {
+	public void registerHeater(Address address, int room, String ipURI) throws Exception {
 		this.getOwner().runTask(
 				s-> {
 					try {
-						((RegistrationCI) s).registerHeater(c, ipURI);
+						((Registrator) s).registerHeater(address, room, ipURI);
 					} catch (Exception e) {
 						
 						e.printStackTrace();
@@ -36,11 +37,10 @@ public class RegistrationInboundPort extends AbstractInboundPort implements Regi
 				});
 
 	}
-
 	@Override
-	public Set<String> getHeaters(Coord thermo) throws Exception {
+	public Set<String> getHeaters(Address address, int room, Coord thermo) throws Exception {
 		return this.getOwner().handleRequest(
-				s -> ((RegistrationCI) s).getHeaters(thermo));
+				s -> ((Registrator) s).getHeaters(address,room, thermo));
 	}
 	
 

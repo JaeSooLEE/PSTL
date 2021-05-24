@@ -4,6 +4,7 @@ import java.util.Set;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import pstl.util.Address;
 import pstl.util.Coord;
 
 public class RegistrationOutboundPort extends AbstractOutboundPort implements RegistrationCI {
@@ -24,15 +25,16 @@ public class RegistrationOutboundPort extends AbstractOutboundPort implements Re
 	
 	
 	@Override
-	public void registerHeater(Coord c, String ipURI) throws Exception {
-		((RegistrationCI)this.getConnector()).registerHeater(c, ipURI);
+	public void registerHeater(Address address, int room, String ipURI) throws Exception {
+		((RegistrationCI)this.getConnector()).registerHeater(address, room, ipURI);
 
 
 	}
 
 	@Override
-	public Set<String> getHeaters(Coord thermo) throws Exception {
-		return ((RegistrationCI)this.getConnector()).getHeaters(thermo);
+	public Set<String> getHeaters(Address address, int room, Coord thermo) throws Exception {
+		
+		return ((RegistrationCI)this.getConnector()).getHeaters(address, room, thermo);
 	}
 
 }

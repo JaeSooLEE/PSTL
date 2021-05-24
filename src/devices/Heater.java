@@ -1,115 +1,163 @@
 package devices;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import communication.CommunicationCI;
+import communication.CommunicationI;
 import communication.CommunicationInboundPort;
-import communication.CommunicationOutboundPort;
+import communication.CommunicatorH;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
-import pstl.actuator.ActuatorCI;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import pstl.actuator.Actuator;
 import pstl.actuator.ActuatorInboundPort;
-import pstl.actuator.ActuatorOutboundPort;
-import pstl.behaviour.BehaviourCI;
+import pstl.behaviour.Behaviour;
+import pstl.behaviour.BehaviourI;
 import pstl.behaviour.BehaviourInboundPort;
-import pstl.behaviour.BehaviourOutboundPort;
-import pstl.registrator.RegistrationCI;
-import pstl.registrator.RegistrationOutboundPort;
-import pstl.sensor.SensorInboundPort;
-import pstl.state.StateCI;
+import pstl.state.StateH;
 import pstl.state.StateInboundPort;
-import pstl.state.StateOutboundPort;
+import pstl.util.Address;
 import pstl.util.Coord;
 
-@OfferedInterfaces(offered = { ActuatorCI.class, StateCI.class, BehaviourCI.class, CommunicationCI.class })
-@RequiredInterfaces(required = {RegistrationCI.class, ActuatorCI.class, BehaviourCI.class, CommunicationCI.class })
+@OfferedInterfaces(offered = {CommunicationCI.class })
+@RequiredInterfaces(required = {CommunicationCI.class })
 
-public class Heater extends AbstractComponent {
+public class Heater extends AbstractComponent implements CommunicationI{
 	
-	public static final String RegOP_URI = RegistrationOutboundPort.generatePortURI();
-	public static final String AOP_URI = ActuatorOutboundPort.generatePortURI();
-	public final String AIP_URI = ActuatorInboundPort.generatePortURI();
-	public final String STOP_URI = StateOutboundPort.generatePortURI();
-	public final String STIP_URI = StateInboundPort.generatePortURI();
-	public final String BOP_URI = BehaviourOutboundPort.generatePortURI();
-	public final String BIP_URI = BehaviourInboundPort.generatePortURI();
-	public final String COP_URI = CommunicationOutboundPort.generatePortURI();
+	
+	public final String SUB_AIP_URI = ActuatorInboundPort.generatePortURI();
 	public final String CIP_URI = CommunicationInboundPort.generatePortURI();
-	
-	public final String SIMIP_URI = SensorInboundPort.generatePortURI();
-	
-	private RegistrationOutboundPort regop;
-	private ActuatorOutboundPort aop;
-	private ActuatorInboundPort aip;
-	private StateOutboundPort stop;
-	private StateInboundPort stip;
-	private BehaviourOutboundPort bop;
-	private BehaviourInboundPort bip;
-	private CommunicationOutboundPort cop;
+	public final String STATE_CIP_URI = CommunicationInboundPort.generatePortURI();
+
+
 	private CommunicationInboundPort cip;
 	
-	public static int count = 0;
-	public static int genID() {
-		Thermometer.count++;
-		return Thermometer.count;
-	} 
-	
-	//private int myID = Thermometer.genID();
+	private Address address;
 	private Coord location;
+	private int room;
 	
-	private int state;
 	
-	Map<Integer, Double> temps = new HashMap<Integer, Double>(); 
 	
-	protected Heater(Coord c) throws Exception {
+
+	// pooling 
+	protected static final String	POOL_URI = "computations pool" ;
+	protected static final int		NTHREADS = 3 ;
+	
+	
+	//subcomponent
+	public String SUB_ACTUATOR_URI;
+	public final String AIMIP_URI = ActuatorInboundPort.generatePortURI();
+	private ActuatorInboundPort sub_aip;
+	
+	public String SUB_BEHAVIOUR_URI;
+	public final String SUB_BIP_URI = BehaviourInboundPort.generatePortURI();
+	protected BehaviourInboundPort sub_bip;
+	BehaviourI subBehaviour = new BehaviourI(){
+		@Override
+		public int update(int s, double val){
+			double temp = val;
+			if(temp >= 18) {return 0;}
+			else {
+			if(temp >= 16) {return 1;}
+			else {
+			if(temp >= 14) {return 2;}
+			else {
+			if(temp >= 11) {return 3;}		
+			else {
+			if(temp >= 9) {return 4;}		
+			else {return 5;
+		}}}}}}};
+		
+		
+	public String SUB_STATE_URI;
+	public final String SUB_STIP_URI = StateInboundPort.generatePortURI();
+	protected StateInboundPort sub_stip;
+	
+	public String SUB_COM_URI;
+	public final String SUB_CIP_URI = CommunicationInboundPort.generatePortURI();
+	protected CommunicationInboundPort sub_cip;
+	
+			
+	protected Heater(Address address, Coord location, int room) throws Exception  {
 		super(1, 0);
-		this.location = c;
+		this.address=address;
+		this.location=location;
+		this.room=room;
 		try {
-			this.regop = new RegistrationOutboundPort(RegOP_URI, this);
-			this.aop = new ActuatorOutboundPort(AOP_URI, this);
-			this.aip = new ActuatorInboundPort(AIP_URI, this);
-			this.stop = new StateOutboundPort(STOP_URI, this);
-			this.stip = new StateInboundPort(STIP_URI, this);
-			this.bop = new BehaviourOutboundPort(BOP_URI, this);
-			this.bip = new BehaviourInboundPort(BIP_URI, this);
-			this.cop = new CommunicationOutboundPort(COP_URI, this);
-			this.cip = new CommunicationInboundPort(CIP_URI, this);
-		} catch (Exception e1) {
-			e1.printStackTrace();
+			this.initialise();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		
+		
+	}
+	
+	protected void initialise() throws Exception {
+		
+		this.cip = new CommunicationInboundPort(CIP_URI, this);
+		this.cip.publishPort();
+		
+		this.SUB_ACTUATOR_URI = this.createSubcomponent(Actuator.class.getCanonicalName(), new Object[]{this.SUB_AIP_URI}) ;
+		this.SUB_BEHAVIOUR_URI = this.createSubcomponent(Behaviour.class.getCanonicalName(), new Object[]{this.SUB_BIP_URI,this.subBehaviour}) ;
+		this.SUB_COM_URI = this.createSubcomponent(CommunicatorH.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_CIP_URI, this.CIP_URI, this.STATE_CIP_URI});
+		this.SUB_STATE_URI = this.createSubcomponent(StateH.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_STIP_URI, this.SUB_BIP_URI, this.SUB_AIP_URI, this.STATE_CIP_URI}) ;
+
+		
+		
+		this.createNewExecutorService(POOL_URI, NTHREADS, false) ;
+		
+		
+		
+	}
+	
+	
+	@Override
+	public synchronized void start() throws ComponentStartException {
+		super.start();
+		
 		try {
-			this.regop.publishPort();
-			this.aop.publishPort();
-			this.aip.publishPort();
-			this.stop.publishPort();
-			this.stip.publishPort();
-			this.bop.publishPort();
-			this.bip.publishPort();
-			this.cop.publishPort();
-			this.cip.publishPort();
-		} catch (Exception e2) {
-			e2.printStackTrace();
+			this.sub_aip =(ActuatorInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_ACTUATOR_URI,this.SUB_AIP_URI) ;
+			this.sub_bip =(BehaviourInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_BEHAVIOUR_URI,this.SUB_BIP_URI) ;
+			this.sub_cip =(CommunicationInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_COM_URI,this.SUB_CIP_URI) ;
+			this.sub_stip =(StateInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_STATE_URI,this.SUB_STIP_URI) ;
+			
+			
+		} catch (Exception e) {
+			throw new ComponentStartException(e) ;
 		}
-		this.toggleLogging();
-		this.toggleTracing();
+
 	}
 
 	@Override
 	public synchronized void execute() throws Exception {
 		super.execute();
-		registerHeater(location, CIP_URI);
-		while(true) {
-			this.newState();
-		}
+		
+		this.runTaskOnComponent(
+				POOL_URI,
+				new AbstractComponent.AbstractTask() {
+					
+					@Override
+					public void run() {
+						try {
+							int i=0;
+							while(i<10) {
+
+							Thread.sleep(400L) ;
+							nS();
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						}});
+		
+		
+		
 	}
 
 	@Override
 	public synchronized void finalise() throws Exception {
 		super.finalise();
+		
 	}
 
 	@Override
@@ -117,55 +165,20 @@ public class Heater extends AbstractComponent {
 		super.shutdown();
 	}
 
-	private double getAverageTemp() {
-		if(temps.isEmpty()) {return 17;}
-		else {
-			double average = 0;
-			int i = 0;
-			
-			for(Entry<Integer, Double> e : temps.entrySet()) {
-				average  +=  e.getValue();
-				i++;
-			}
-			return (average/i);
-		}
+	
+	
+	public String communicate(Address address, String code, double val, String body) throws Exception{
+		return sub_cip.communicate(address, code, val, body);
 	}
 	
 	
-	public void communicate(int address, double message) throws Exception{
-		temps.put(address, message);
-	}
+
 	
-	public void act(Coord c, double var) throws Exception{
-		aop.act(c, var);
-	}
-	
-	public int update(int state) throws Exception{
-		double temp = getAverageTemp();
-		if(temp >= 17) {return 0;}
-		else {
-		if(temp >= 14) {return 1;}
-		else {
-		if(temp >= 10) {return 2;}
-		else {
-		if(temp >= 5) {return 3;}		
-		else {
-		if(temp >= 2) {return 4;}		
-		else {return 5;
-		}}}}}
-	}
-	
-	//public void neighState(String address, double value) throws Exception{
-	//}
-	public void registerHeater(Coord c, String ipURI) throws Exception{
-		regop.registerHeater(c, ipURI);
-	}
-	
-	public void newState() throws Exception{
-		this.state = update(state);
+	public void nS() throws Exception{
+		this.sub_stip.newState();
 		
-		act(location,state);
 	
 	}
-	
+
+
 }

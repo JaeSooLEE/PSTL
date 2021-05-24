@@ -19,10 +19,10 @@ public class ActuatorInboundPort extends AbstractInboundPort implements Actuator
 	@Override
 	public void act(Coord c, double var) throws Exception {
 
-		this.getOwner().runTask(
+		this.getOwner().runTask(  
 			a-> {
 				try {
-					((ActuatorCI) a).act(c,var);
+					((ActuatorI) a).act(c,var);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

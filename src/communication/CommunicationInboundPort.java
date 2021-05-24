@@ -2,7 +2,7 @@ package communication;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
-import pstl.behaviour.BehaviourCI;
+import pstl.util.Address;
 
 public class CommunicationInboundPort  extends AbstractInboundPort implements CommunicationCI {
 	
@@ -11,23 +11,15 @@ public class CommunicationInboundPort  extends AbstractInboundPort implements Co
 	 */
 	private static final long serialVersionUID = -8187884600035310175L;
 	public CommunicationInboundPort(ComponentI owner) throws Exception {
-		super(BehaviourCI.class, owner);
+		super(CommunicationCI.class, owner);
 	}
 	public CommunicationInboundPort(String uri, ComponentI owner) throws Exception {
-		super(uri, BehaviourCI.class, owner);
+		super(uri, CommunicationCI.class, owner);
 	}
 	@Override
-	public void communicate(int address, double message) throws Exception {
-
-		this.getOwner().runTask(
-				c-> {
-					try {
-						((CommunicationCI) c).communicate(address, message);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				});
+	public String communicate(Address address, String code, double val, String body) throws Exception {
+		return this.getOwner().handleRequest(
+				c -> ((CommunicationI) c).communicate(address, code, val, body));
 		
 	}
 

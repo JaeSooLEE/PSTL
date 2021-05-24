@@ -20,7 +20,7 @@ public class SensorInboundPort extends AbstractInboundPort implements SensorCI {
 	@Override
 	public double sense(Coord c) throws Exception {
 		return this.getOwner().handleRequest(
-				s -> ((SensorCI) s).sense(c));
+				s -> ((SensorI) s).sense(c));
 	}
 
 }

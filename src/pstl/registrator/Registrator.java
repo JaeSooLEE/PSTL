@@ -3,11 +3,13 @@ package pstl.registrator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import pstl.util.Address;
 import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { RegistrationCI.class })
@@ -15,7 +17,7 @@ import pstl.util.Coord;
 public class Registrator extends AbstractComponent {
 
 	public static final String RegIP_URI = "rip-uri";
-	private Map<String, Coord> heaters = new HashMap<>();
+	private Map<Integer, Map<Address, String>> heaters = new HashMap<Integer, Map<Address, String>>();
 	protected RegistrationInboundPort rip;
 
 	protected Registrator() throws Exception {
@@ -24,47 +26,26 @@ public class Registrator extends AbstractComponent {
 		this.rip.publishPort();
 	}
 
-	public void registerHeater(Coord c, String ipURI) throws Exception {
-		heaters.put(ipURI, c);
+	
+	public void registerHeater(Address address, int room, String ipURI) throws Exception {
+		if(heaters.containsKey(room)) {
+			heaters.get(room).put(address, ipURI);
+		}else {
+			Map<Address, String> tmp = new HashMap<Address, String>();
+			tmp.put(address, ipURI);
+			heaters.put(room, tmp);
+		}
 	}
 
-	public Set<String> getHeaters(Coord thermo) throws Exception {
-		if(thermo.x > 7) return getRoomHeaters(3);
-		if(thermo.y < 5) return getRoomHeaters(1);
-		if(thermo.y > 5) return getRoomHeaters(2);
-		return null;
-	}
-
-	public Set<String> getRoomHeaters(int n) {
+	public Set<String> getHeaters(Address address, int room, Coord thermo) throws Exception {
 		Set<String> res = new HashSet<>();
-		switch (n) {
-		case 1:
-			for (String s : heaters.keySet()) {
-				if (heaters.get(s).x < 8) {
-					if (heaters.get(s).y < 5) {
-						res.add(s);
-					}
-				}
-			}
-			break;
-		case 2:
-			for (String s : heaters.keySet()) {
-				if (heaters.get(s).x < 8) {
-					if (heaters.get(s).y > 5) {
-						res.add(s);
-					}
-				}
-			}
-
-		case 3:
-			for (String s : heaters.keySet()) {
-				if (heaters.get(s).x > 7) {
-					res.add(s);
-				}
-
-			}
+		
+		for(Entry<Address, String> e: heaters.get(room).entrySet()) {
+			res.add(e.getValue());
 		}
 		return res;
+		
 	}
 
+	
 }
