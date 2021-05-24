@@ -231,6 +231,10 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 		for(int i =0; i < 8; i++) {
 			map[i][5] = wall;
 		}
+		map[7][4]=wall;
+		map[7][3]=wall;
+		map[7][6]=wall;
+		map[7][7]=wall;
 		this.printMap();
 	}
 	
