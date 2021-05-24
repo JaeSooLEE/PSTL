@@ -2,6 +2,7 @@ package pstl.behaviour;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import pstl.util.Address;
 
 public class BehaviourOutboundPort extends AbstractOutboundPort implements BehaviourCI{
 	
@@ -13,9 +14,9 @@ public class BehaviourOutboundPort extends AbstractOutboundPort implements Behav
 		super(uri, BehaviourCI.class, owner);
 	}
 	@Override
-	public int update(int state, double val) throws Exception {
+	public int update(Address address, int state, double val) throws Exception {
 		
-		return ((BehaviourCI)this.getConnector()).update(state, val);
+		return ((BehaviourCI)this.getConnector()).update(address, state, val);
 		
 	}
 	

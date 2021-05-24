@@ -1,4 +1,4 @@
-package connecteurs;
+package pstl.connecteurs;
 
 import java.util.Set;
 

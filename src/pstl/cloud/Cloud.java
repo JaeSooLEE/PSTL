@@ -6,27 +6,31 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import communication.CommunicationCI;
-import communication.CommunicationI;
-import communication.CommunicationInboundPort;
-import communication.CommunicationOutboundPort;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import pstl.behaviour.Behaviour;
+import pstl.behaviour.BehaviourCI;
 import pstl.behaviour.BehaviourI;
 import pstl.behaviour.BehaviourInboundPort;
+import pstl.communication.CommunicationCI;
+import pstl.communication.CommunicationI;
+import pstl.communication.CommunicationInboundPort;
+import pstl.communication.CommunicationOutboundPort;
 import pstl.util.Address;
 
-@OfferedInterfaces(offered = {CommunicationCI.class })
+@OfferedInterfaces(offered = {CommunicationCI.class, BehaviourCI.class })
 @RequiredInterfaces(required = {CommunicationCI.class })
 
-public class Cloud extends AbstractComponent implements CommunicationI{
+public class Cloud extends AbstractComponent implements CommunicationI, BehaviourI{
 	
 	protected final String COP_URI = CommunicationOutboundPort.generatePortURI();
-	public static final String CIP_URI = "server_ip_uri";
+	public static final String CIP_URI = "server_cip_uri";
 	protected CommunicationOutboundPort cop;
 	protected CommunicationInboundPort cip;
+	
+	public static final String BIP_URI = "server_bip_uri";
+	protected BehaviourInboundPort bip;
 	
 	Map<Address, Set<Double>> tempLog = new HashMap<Address, Set<Double>>(); 
 	Map<Address, Double> averages = new HashMap<Address, Double>(); 
@@ -36,10 +40,10 @@ public class Cloud extends AbstractComponent implements CommunicationI{
 	protected int safetyRoom = 0;
 	protected int safetyThreshHold = 4;
 	
-	BehaviourI subBehaviourThermometer = (s, val)->s++%2+1;
+	BehaviourI subBehaviourThermometer = (a,s, val)->s++%2+1;
 	BehaviourI subBehaviourHeater = new BehaviourI(){
 		@Override
-		public int update(int s, double val){
+		public int update(Address address, int s, double val){
 			double temp = val;
 			if(temp >= 18) {return 0;}
 			else {
@@ -63,10 +67,11 @@ public class Cloud extends AbstractComponent implements CommunicationI{
 		super(1, 0);
 		this.cop = new CommunicationOutboundPort(this.COP_URI, this);
 		this.cip = new CommunicationInboundPort(Cloud.CIP_URI, this);
+		this.bip = new BehaviourInboundPort(Cloud.BIP_URI, this);
 		
 		this.cop.publishPort();
 		this.cip.publishPort();
-		
+		this.bip.publishPort();
 		this.createNewExecutorService(POOL_URI, NTHREADS, false) ;
 		
 	}
@@ -106,6 +111,9 @@ public class Cloud extends AbstractComponent implements CommunicationI{
 		for(Entry<Address, Double> e: this.averages.entrySet() ) {
 			System.out.println(e.getKey()+": average temp = "+e.getValue());
 		}
+		this.cop.unpublishPort();
+		this.cip.unpublishPort();
+		this.bip.unpublishPort();
 		super.finalise();
 	}
 	public void toggleSafety() throws Exception {
@@ -114,7 +122,7 @@ public class Cloud extends AbstractComponent implements CommunicationI{
 			
 			if(e.getKey().isHeater()) {
 				System.out.println("toggeling");
-				e.getValue().update(-1, 0);
+				e.getValue().update(null, -1, 0);
 				this.safety = true;
 			}
 		}
@@ -125,7 +133,7 @@ public class Cloud extends AbstractComponent implements CommunicationI{
 		for(Entry<Address, BehaviourInboundPort> e :behaviours.get(safetyRoom).entrySet()) {
 			if(e.getKey().isHeater()) {
 				System.out.println("untoggeling");
-				e.getValue().update(-1, 0);
+				e.getValue().update(null, -1, 0);
 				this.safety = false;
 			}
 		}
@@ -195,5 +203,17 @@ public class Cloud extends AbstractComponent implements CommunicationI{
 		}
 		return "OK";
 		
+	}
+
+	@Override
+	public int update(Address address, int state, double val) throws Exception {
+		for(Entry<Integer, Map<Address,BehaviourInboundPort>> e1: this.behaviours.entrySet()) {
+			for(Entry<Address,BehaviourInboundPort> e2: e1.getValue().entrySet()) {
+				if(e2.getKey().equals(address)) {
+					return e2.getValue().update(address, state, val);
+				}
+			}
+		}
+		return 0;
 	}
 }

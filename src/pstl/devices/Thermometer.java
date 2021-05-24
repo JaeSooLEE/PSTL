@@ -1,16 +1,16 @@
-package devices;
+package pstl.devices;
 
-import communication.CommunicationCI;
-import communication.CommunicationI;
-import communication.CommunicationInboundPort;
-import communication.CommunicationOutboundPort;
-import communication.CommunicatorT;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import pstl.behaviour.BehaviourInboundPort;
+import pstl.communication.CommunicationCI;
+import pstl.communication.CommunicationI;
+import pstl.communication.CommunicationInboundPort;
+import pstl.communication.CommunicationOutboundPort;
+import pstl.communication.CommunicatorT;
 import pstl.registrator.RegistrationCI;
 import pstl.sensor.Sensor;
 import pstl.sensor.SensorInboundPort;

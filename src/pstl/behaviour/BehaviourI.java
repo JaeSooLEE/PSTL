@@ -1,5 +1,7 @@
 package pstl.behaviour;
 
+import pstl.util.Address;
+
 public interface BehaviourI {
-	public int update(int state, double val) throws Exception;
+	public int update(Address address, int state, double val) throws Exception;
 }

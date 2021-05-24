@@ -1,11 +1,11 @@
 package pstl.actuator;
 
-import connecteurs.ActuatorConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import pstl.connecteurs.ActuatorConnector;
+import pstl.simulator.Simulator;
 import pstl.util.Coord;
-import simulator.Simulator;
 
 
 

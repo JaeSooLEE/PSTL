@@ -1,14 +1,14 @@
-package cvm;
+package pstl.cvm;
 
-import devices.Heater;
-import devices.Thermometer;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import pstl.cloud.Cloud;
+import pstl.devices.Heater;
+import pstl.devices.Thermometer;
 import pstl.registrator.Registrator;
+import pstl.simulator.Simulator;
 import pstl.util.Address;
 import pstl.util.Coord;
-import simulator.Simulator;
 
 
 public class CVM extends AbstractCVM {
@@ -17,9 +17,6 @@ public class CVM extends AbstractCVM {
 
 	@Override
 	public void deploy() throws Exception {
-		String[] therm = new String[1000];
-		String[] heat = new String[1000];
-		
 		
 		
 		AbstractComponent.createComponent(Registrator.class.getCanonicalName(), new Object[] {});

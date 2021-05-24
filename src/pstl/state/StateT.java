@@ -1,22 +1,23 @@
 package pstl.state;
 
-import communication.CommunicationCI;
-import communication.CommunicationI;
-import communication.CommunicationInboundPort;
-import communication.CommunicationOutboundPort;
-import connecteurs.BehaviourConnector;
-import connecteurs.CommunicationConnector;
-import connecteurs.SensorConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import pstl.actuator.ActuatorCI;
 import pstl.behaviour.BehaviourCI;
 import pstl.behaviour.BehaviourOutboundPort;
+import pstl.cloud.Cloud;
+import pstl.communication.CommunicationCI;
+import pstl.communication.CommunicationI;
+import pstl.communication.CommunicationInboundPort;
+import pstl.communication.CommunicationOutboundPort;
+import pstl.connecteurs.BehaviourConnector;
+import pstl.connecteurs.CommunicationConnector;
+import pstl.connecteurs.SensorConnector;
 import pstl.sensor.SensorOutboundPort;
+import pstl.simulator.Simulator;
 import pstl.util.Address;
 import pstl.util.Coord;
-import simulator.Simulator;
 
 
 @OfferedInterfaces(offered = { StateCI.class, CommunicationCI.class })
@@ -90,7 +91,7 @@ public class StateT extends AbstractComponent implements StateI, CommunicationI{
 	public void newState() throws Exception{
 	
 		if(ready) {
-		state = bop.update(state, myTemp);
+		state = bop.update(address, state, myTemp);
 		
 
 
@@ -121,7 +122,7 @@ public class StateT extends AbstractComponent implements StateI, CommunicationI{
 	}
 	public void initBehaviour() throws Exception {
 		String s = cop.communicate(address, "behaviour", this.room, BIP_URI);
-		this.doPortConnection(BOP_URI, BIP_URI, BehaviourConnector.class.getCanonicalName());
+		this.doPortConnection(BOP_URI, Cloud.BIP_URI, BehaviourConnector.class.getCanonicalName());
 		
 		this.ready = true;
 	}

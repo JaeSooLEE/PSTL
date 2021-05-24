@@ -1,4 +1,4 @@
-package communication;
+package pstl.communication;
 
 import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;

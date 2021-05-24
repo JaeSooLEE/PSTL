@@ -1,4 +1,4 @@
-package communication;
+package pstl.communication;
 
 import pstl.util.Address;
 

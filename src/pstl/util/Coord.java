@@ -1,6 +1,12 @@
 package pstl.util;
 
-public class Coord {
+import java.io.Serializable;
+
+public class Coord implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 850784721322298600L;
 	public int x; 
 	public int y;
 	
@@ -24,7 +30,11 @@ public class Coord {
         return Double.compare(x, c.x) == 0
                 && Double.compare(y, c.y) == 0;
     }
-	
+	@Override
+	public int hashCode() {
+		String s = ""+x+""+y;
+		return s.hashCode();
+	}
 	
 	@Override
 	public String toString() {

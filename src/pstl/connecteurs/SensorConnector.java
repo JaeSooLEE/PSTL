@@ -1,4 +1,4 @@
-package connecteurs;
+package pstl.connecteurs;
 
 import fr.sorbonne_u.components.connectors.AbstractConnector;
 import pstl.sensor.SensorCI;

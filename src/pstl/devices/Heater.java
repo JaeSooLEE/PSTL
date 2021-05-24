@@ -1,9 +1,5 @@
-package devices;
+package pstl.devices;
 
-import communication.CommunicationCI;
-import communication.CommunicationI;
-import communication.CommunicationInboundPort;
-import communication.CommunicatorH;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
@@ -12,6 +8,10 @@ import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import pstl.actuator.Actuator;
 import pstl.actuator.ActuatorInboundPort;
 import pstl.behaviour.BehaviourInboundPort;
+import pstl.communication.CommunicationCI;
+import pstl.communication.CommunicationI;
+import pstl.communication.CommunicationInboundPort;
+import pstl.communication.CommunicatorH;
 import pstl.state.StateH;
 import pstl.state.StateInboundPort;
 import pstl.util.Address;

@@ -1,7 +1,7 @@
-package connecteurs;
+package pstl.connecteurs;
 
-import communication.CommunicationCI;
 import fr.sorbonne_u.components.connectors.AbstractConnector;
+import pstl.communication.CommunicationCI;
 import pstl.util.Address;
 
 public class CommunicationConnector extends AbstractConnector implements CommunicationCI {

@@ -4,13 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import communication.CommunicationCI;
-import communication.CommunicationI;
-import communication.CommunicationInboundPort;
-import communication.CommunicationOutboundPort;
-import connecteurs.ActuatorConnector;
-import connecteurs.BehaviourConnector;
-import connecteurs.CommunicationConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
@@ -18,6 +11,14 @@ import pstl.actuator.ActuatorCI;
 import pstl.actuator.ActuatorOutboundPort;
 import pstl.behaviour.BehaviourCI;
 import pstl.behaviour.BehaviourOutboundPort;
+import pstl.cloud.Cloud;
+import pstl.communication.CommunicationCI;
+import pstl.communication.CommunicationI;
+import pstl.communication.CommunicationInboundPort;
+import pstl.communication.CommunicationOutboundPort;
+import pstl.connecteurs.ActuatorConnector;
+import pstl.connecteurs.BehaviourConnector;
+import pstl.connecteurs.CommunicationConnector;
 import pstl.util.Address;
 import pstl.util.Coord;
 
@@ -98,14 +99,14 @@ public class StateH extends AbstractComponent implements StateI, CommunicationI{
 	public void newState() throws Exception {
 		if(ready) {
 			int val = (int)this.getAverageTemp();
-			state = bop.update(state, val);
+			state = bop.update(address, state, val);
 			logMessage(address +": mode " + state + " at " +location );
 			aop.act(location,state);
 		}
 	}
 	public void initBehaviour() throws Exception {
 		String s = cop.communicate(address, "behaviour", this.room, BIP_URI);
-		this.doPortConnection(BOP_URI, BIP_URI, BehaviourConnector.class.getCanonicalName());
+		this.doPortConnection(BOP_URI, Cloud.BIP_URI, BehaviourConnector.class.getCanonicalName());
 		this.ready = true;
 	}
 	private double getAverageTemp() {

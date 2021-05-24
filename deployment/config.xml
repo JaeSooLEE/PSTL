@@ -8,35 +8,30 @@
   <rmiRegistryPort no="55999"/>
   <jvms2hostnames>
   
-  	<jvm2hostname jvmuri="registrator"
+  	<jvm2hostname jvmuri="reg"
   	    rmiRegistryCreator="true"
         hostname="localhost"
         mainclass="cps.cvm.DistributedCVM"/>
         
-    <jvm2hostname jvmuri="nregistrator"
+    <jvm2hostname jvmuri="sim"
   	    rmiRegistryCreator="false"
         hostname="localhost"
         mainclass="cps.cvm.DistributedCVM"/>
         
-    <jvm2hostname jvmuri="classical"
+    <jvm2hostname jvmuri="cloud"
   	    rmiRegistryCreator="false"
         hostname="localhost"
         mainclass="cps.cvm.DistributedCVM"/>
         
-    <jvm2hostname jvmuri="routing"
+    <jvm2hostname jvmuri="h"
   	    rmiRegistryCreator="false"
         hostname="localhost"
         mainclass="cps.cvm.DistributedCVM"/>
         
-    <jvm2hostname jvmuri="terminal"
+    <jvm2hostname jvmuri="t"
   	    rmiRegistryCreator="false"
         hostname="localhost"
         mainclass="cps.cvm.DistributedCVM"/>
-        
-    <jvm2hostname jvmuri="accesspoint"
-  	    rmiRegistryCreator="false"
-        hostname="localhost"
-        mainclass="cps.cvm.DistributedCVM"/>
-        
+
   </jvms2hostnames>
 </deployment>

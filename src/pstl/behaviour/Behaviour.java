@@ -3,6 +3,7 @@ package pstl.behaviour;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import pstl.util.Address;
 
 @OfferedInterfaces(offered = { BehaviourCI.class })
 @RequiredInterfaces(required = {BehaviourCI.class})
@@ -35,11 +36,11 @@ public class Behaviour extends AbstractComponent implements BehaviourI{
 	}
 
 
-	public int update(int state, double val) throws Exception {
+	public int update(Address address, int state, double val) throws Exception {
 		
 		if(state == -1) {this.lock=!lock;}
 		if(lock) {return 5;}
-		return f.update(state, val);
+		return f.update(address, state, val);
 	}
 
 }

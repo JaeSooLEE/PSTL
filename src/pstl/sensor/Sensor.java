@@ -1,11 +1,11 @@
 package pstl.sensor;
 
-import connecteurs.SensorConnector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import pstl.connecteurs.SensorConnector;
+import pstl.simulator.Simulator;
 import pstl.util.Coord;
-import simulator.Simulator;
 
 @OfferedInterfaces(offered = { SensorCI.class })
 @RequiredInterfaces(required = {SensorCI.class})

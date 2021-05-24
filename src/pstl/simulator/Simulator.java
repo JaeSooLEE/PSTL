@@ -1,4 +1,4 @@
-package simulator;
+package pstl.simulator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,8 +21,8 @@ import pstl.util.Coord;
 @OfferedInterfaces(offered = { SensorCI.class, ActuatorCI.class })
 public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 	
-	public static final String SIP_URI =     SensorInboundPort.generatePortURI();;
-	public static final String AIP_URI = 	ActuatorOutboundPort.generatePortURI();
+	public static final String SIP_URI =     "sim_sip";
+	public static final String AIP_URI = 	"sim_aip";
 	
 	private SensorInboundPort sip;
 	private ActuatorInboundPort aip;
