@@ -30,11 +30,12 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 	
 	int size = 10;
 	double tauxPropagation = 0.1;//0.9
-	double tauxDecipation = 0.002;//0.05
+	double tauxDecipation = 0.002;//0.002
 	double tauxChaufage = 4;
 	
 	double[][] map = new double[size][size]; 
 	
+	double wall = Double.MIN_VALUE;
 	Map<Coord, Double> heaterEffect = new HashMap<Coord, Double>();
 	
 	
@@ -88,6 +89,24 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 							propagate();
 							heat();
 							}
+						
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						}});
+		
+
+		this.runTaskOnComponent(
+				POOL_URI,
+				new AbstractComponent.AbstractTask() {
+					
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(4000L) ;
+							map[1][1] = 1;
+							map[1][2] = 1;
+							
 						
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -151,26 +170,26 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 			for(int j =0; j < size; j++) {
 				
 		
-	       if(map[i][j] == -1) {
+	       if(map[i][j] == wall) {
                continue;
            } else {
                double diff = 0;
-               if(i != 0 && map[i-1][j] != -1) {
+               if(i != 0 && map[i-1][j] != wall) {
                    diff = map[i][j] - map[i-1][j];
                    map[i][j] -= tauxPropagation*diff+ tauxDecipation*map[i][j];
                    map[i-1][j] += tauxPropagation*diff;
                }
-               if(i != size-1 && map[i+1][j] != -1) {
+               if(i != size-1 && map[i+1][j] != wall) {
                    diff = map[i][j] - map[i+1][j];
                    map[i][j] -= tauxPropagation*diff+ tauxDecipation*map[i][j];
                    map[i+1][j] += tauxPropagation*diff;
                }
-               if(j != 0 && map[i][j-1] != -1) {
+               if(j != 0 && map[i][j-1] != wall) {
                    diff = map[i][j] - map[i][j-1];
                    map[i][j] -= tauxPropagation*diff+ tauxDecipation*map[i][j];
                    map[i][j-1] += tauxPropagation*diff;
                }
-               if(j != size-1 && map[i][j+1] != -1) {
+               if(j != size-1 && map[i][j+1] != wall) {
                    diff = map[i][j] - map[i][j+1];
                    map[i][j] -= tauxPropagation*diff+ tauxDecipation*map[i][j];
                    map[i][j+1] += tauxPropagation*diff;
@@ -185,7 +204,12 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 		System.out.print("\n-------------------------\n");
 		for(int i =0; i < size; i++) {
 			for(int j =0; j < size; j++) {
-				System.out.print(round(map[i][j],2)+"  ");
+				if(map[i][j] == wall) {
+					System.out.print("xxx  ");
+				}
+				else {
+					System.out.print(round(map[i][j],2)+"  ");
+				}
 			}
 			System.out.print("\n");
 		}
@@ -205,7 +229,7 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 			}
 		}
 		for(int i =0; i < 8; i++) {
-			map[i][5] = -1;
+			map[i][5] = wall;
 		}
 		this.printMap();
 	}

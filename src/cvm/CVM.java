@@ -26,20 +26,19 @@ public class CVM extends AbstractCVM {
 		AbstractComponent.createComponent(Simulator.class.getCanonicalName(), new Object[] {});
 		AbstractComponent.createComponent(Cloud.class.getCanonicalName(), new Object[] {});
 		
-		for(int i=0; i<1;i++) {
-
-			therm[i] = AbstractComponent.createComponent(Thermometer.class.getCanonicalName(), new Object[] {new Address("T0", true, false), new Coord(1, 1), 1});
-			//this.doPortConnection(therm[i],Thermometer.RegOP_URI , Registrator.RegIP_URI, RegistrationConnector.class.getCanonicalName());
-			//this.doPortConnection(therm[i],Thermometer.SOP_URI , Simulator.SIP_URI, SensorConnector.class.getCanonicalName());
-		} 
 		
-		for(int i=0; i<1;i++) {
-
-			heat[i] = AbstractComponent.createComponent(Heater.class.getCanonicalName(), new Object[] {new Address("H0", false, true), new Coord(3, 3), 1});
-			//this.doPortConnection(heat[i],Heater.RegOP_URI , Registrator.RegIP_URI, RegistrationConnector.class.getCanonicalName());
-			//this.doPortConnection(heat[i],Heater.AOP_URI , Simulator.AIP_URI, ActuatorConnector.class.getCanonicalName());
-		} 
+		AbstractComponent.createComponent(Heater.class.getCanonicalName(), new Object[] {new Address("H1", false, true), new Coord(3, 3), 1});
+		AbstractComponent.createComponent(Heater.class.getCanonicalName(), new Object[] {new Address("H2", false, true), new Coord(3, 8), 2});
+		AbstractComponent.createComponent(Heater.class.getCanonicalName(), new Object[] {new Address("H3", false, true), new Coord(8, 5), 3});
 		
+		AbstractComponent.createComponent(Thermometer.class.getCanonicalName(), new Object[] {new Address("T1", true, false), new Coord(1, 1), 1});
+		AbstractComponent.createComponent(Thermometer.class.getCanonicalName(), new Object[] {new Address("T2", true, false), new Coord(1, 7), 2});
+		AbstractComponent.createComponent(Thermometer.class.getCanonicalName(), new Object[] {new Address("T3", true, false), new Coord(8, 2), 3});
+		AbstractComponent.createComponent(Thermometer.class.getCanonicalName(), new Object[] {new Address("T4", true, false), new Coord(8, 8), 3});
+
+			
+		
+			
 		
 		super.deploy();
 	}

@@ -106,7 +106,7 @@ public class StateT extends AbstractComponent implements StateI, CommunicationI{
 	
 	public void broadcast() throws Exception {
 		cop.communicate(address, "temp", myTemp, "");
-		cop.communicate(address, "log", myTemp, "");
+		cop.communicate(address, "log", myTemp, ""+this.room);
 	}
 	
 	public void getTemp() {
@@ -120,7 +120,7 @@ public class StateT extends AbstractComponent implements StateI, CommunicationI{
 		
 	}
 	public void initBehaviour() throws Exception {
-		String s = cop.communicate(address, "behaviour", 0, BIP_URI);
+		String s = cop.communicate(address, "behaviour", this.room, BIP_URI);
 		this.doPortConnection(BOP_URI, BIP_URI, BehaviourConnector.class.getCanonicalName());
 		
 		this.ready = true;

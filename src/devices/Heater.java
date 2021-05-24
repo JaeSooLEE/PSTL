@@ -11,8 +11,6 @@ import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import pstl.actuator.Actuator;
 import pstl.actuator.ActuatorInboundPort;
-import pstl.behaviour.Behaviour;
-import pstl.behaviour.BehaviourI;
 import pstl.behaviour.BehaviourInboundPort;
 import pstl.state.StateH;
 import pstl.state.StateInboundPort;
@@ -37,7 +35,7 @@ public class Heater extends AbstractComponent implements CommunicationI{
 	private int room;
 	
 	
-	
+	protected boolean stop = false;
 
 	// pooling 
 	protected static final String	POOL_URI = "computations pool" ;
@@ -47,26 +45,12 @@ public class Heater extends AbstractComponent implements CommunicationI{
 	//subcomponent
 	public String SUB_ACTUATOR_URI;
 	public final String AIMIP_URI = ActuatorInboundPort.generatePortURI();
-	private ActuatorInboundPort sub_aip;
+
 	
-	public String SUB_BEHAVIOUR_URI;
+	
 	public final String SUB_BIP_URI = BehaviourInboundPort.generatePortURI();
-	protected BehaviourInboundPort sub_bip;
-	BehaviourI subBehaviour = new BehaviourI(){
-		@Override
-		public int update(int s, double val){
-			double temp = val;
-			if(temp >= 18) {return 0;}
-			else {
-			if(temp >= 16) {return 1;}
-			else {
-			if(temp >= 14) {return 2;}
-			else {
-			if(temp >= 11) {return 3;}		
-			else {
-			if(temp >= 9) {return 4;}		
-			else {return 5;
-		}}}}}}};
+	
+	
 		
 		
 	public String SUB_STATE_URI;
@@ -98,9 +82,8 @@ public class Heater extends AbstractComponent implements CommunicationI{
 		this.cip.publishPort();
 		
 		this.SUB_ACTUATOR_URI = this.createSubcomponent(Actuator.class.getCanonicalName(), new Object[]{this.SUB_AIP_URI}) ;
-		this.SUB_BEHAVIOUR_URI = this.createSubcomponent(Behaviour.class.getCanonicalName(), new Object[]{this.SUB_BIP_URI,this.subBehaviour}) ;
 		this.SUB_COM_URI = this.createSubcomponent(CommunicatorH.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_CIP_URI, this.CIP_URI, this.STATE_CIP_URI});
-		this.SUB_STATE_URI = this.createSubcomponent(StateH.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_STIP_URI, this.SUB_BIP_URI, this.SUB_AIP_URI, this.STATE_CIP_URI}) ;
+		this.SUB_STATE_URI = this.createSubcomponent(StateH.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_STIP_URI, this.SUB_BIP_URI, this.SUB_AIP_URI, this.STATE_CIP_URI, this.SUB_CIP_URI}) ;
 
 		
 		
@@ -116,8 +99,7 @@ public class Heater extends AbstractComponent implements CommunicationI{
 		super.start();
 		
 		try {
-			this.sub_aip =(ActuatorInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_ACTUATOR_URI,this.SUB_AIP_URI) ;
-			this.sub_bip =(BehaviourInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_BEHAVIOUR_URI,this.SUB_BIP_URI) ;
+			this.findSubcomponentInboundPortFromURI(this.SUB_ACTUATOR_URI,this.SUB_AIP_URI) ;
 			this.sub_cip =(CommunicationInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_COM_URI,this.SUB_CIP_URI) ;
 			this.sub_stip =(StateInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_STATE_URI,this.SUB_STIP_URI) ;
 			
@@ -139,8 +121,8 @@ public class Heater extends AbstractComponent implements CommunicationI{
 					@Override
 					public void run() {
 						try {
-							int i=0;
-							while(i<10) {
+
+							while(!stop) {
 
 							Thread.sleep(400L) ;
 							nS();
@@ -156,12 +138,22 @@ public class Heater extends AbstractComponent implements CommunicationI{
 
 	@Override
 	public synchronized void finalise() throws Exception {
+		stop= true;
+		Thread.sleep(100L);
+		
+		this.shutdownExecutorService(POOL_URI);
+		this.cip.unpublishPort();
 		super.finalise();
 		
 	}
 
 	@Override
 	public synchronized void shutdown() throws ComponentShutdownException {
+		try {
+			this.cip.destroyPort();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		super.shutdown();
 	}
 

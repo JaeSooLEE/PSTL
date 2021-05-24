@@ -12,8 +12,10 @@ public class Behaviour extends AbstractComponent implements BehaviourI{
 	
 	protected BehaviourInboundPort bip;
 	
+	
+	protected boolean lock = false;
 	protected Behaviour(String BIP_URI, BehaviourI f) {
-		super(1, 0);
+		super(3, 2);
 
 		this.BIP_URI=BIP_URI;
 		this.f = f;
@@ -34,6 +36,9 @@ public class Behaviour extends AbstractComponent implements BehaviourI{
 
 
 	public int update(int state, double val) throws Exception {
+		
+		if(state == -1) {this.lock=!lock;}
+		if(lock) {return 5;}
 		return f.update(state, val);
 	}
 
