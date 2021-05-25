@@ -6,6 +6,10 @@ import pstl.connecteurs.ActuatorConnector;
 import pstl.simulator.Simulator;
 import pstl.util.Coord;
 
+/**
+ * this is the ready to install Plugin used for the Actuator, identical to the Actuator sub-component 
+ *
+ */
 public class ActuatorPlugin extends	AbstractPlugin implements ActuatorI{
 
 	/**

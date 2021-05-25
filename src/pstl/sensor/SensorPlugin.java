@@ -8,7 +8,10 @@ import pstl.simulator.Simulator;
 import pstl.util.Coord;
 
 
-
+/**
+ * this is the ready to install Plugin used for the Sensor, identical to the Sensor sub-component 
+ *
+ */
 public class SensorPlugin extends	AbstractPlugin implements SensorI{
 
 	/**

@@ -98,7 +98,7 @@ public class CommunicatorH extends AbstractComponent implements CommunicationI{
 	 * communicate is the main function of Communicator (should be reprogrammed at each use)
 	 * it is modeled after the TCP protocol, in the sense that it expects an "ACK" 
 	 * @param address the address of the sender 
-	 * @param the code of the operation 
+	 * @param code the code of the operation 
 	 * @param val a useful numerical value used in diffrent cases
 	 * @param body the ody of the message  
 	 */
