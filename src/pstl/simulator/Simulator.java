@@ -12,13 +12,19 @@ import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import pstl.actuator.ActuatorCI;
 import pstl.actuator.ActuatorI;
 import pstl.actuator.ActuatorInboundPort;
-import pstl.actuator.ActuatorOutboundPort;
 import pstl.sensor.SensorCI;
 import pstl.sensor.SensorI;
 import pstl.sensor.SensorInboundPort;
 import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { SensorCI.class, ActuatorCI.class })
+
+/**
+ * the class Simulator represents the house where the simulation takes place 
+ * as well as the physics of heat propagation, it also provides the physical end of the Sensing 
+ * and Actuating functions
+ *
+ */
 public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 	
 	public static final String SIP_URI =     "sim_sip";
@@ -29,12 +35,17 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 	
 	
 	int size = 10;
-	double tauxPropagation = 0.1;//0.9
-	double tauxDecipation = 0.002;//0.002
+	// heat propagation coefficient 
+	double tauxPropagation = 0.1;
+	// heat loss coefficient
+	double tauxDecipation = 0.002;
+	// heating coefficient
 	double tauxChaufage = 4;
 	
+	//the map of the house
 	double[][] map = new double[size][size]; 
 	
+	// this value is used for thermo-isolating walls
 	double wall = Double.MIN_VALUE;
 	Map<Coord, Double> heaterEffect = new HashMap<Coord, Double>();
 	
@@ -104,6 +115,7 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 					public void run() {
 						try {
 							Thread.sleep(4000L) ;
+							// creating the event of an open door
 							map[1][1] = 1;
 							map[1][2] = 1;
 							
@@ -147,16 +159,27 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 
 
 
-
+	/**
+	 * the physical end of the sensor, return the temperature at the specified coordinate
+	 * @param c given location
+	 * @return temperature value
+	 */
 	public double sense(Coord c) throws Exception{
 		return map[c.x][c.y];
 	}
 	
-	
+	/**
+	 * the physical end of the heater, adds heat at the specified location and with the specified intensity
+	 * @param c given location
+	 * @param var given intensity
+	 */
 	public void act(Coord c, double var) throws Exception{
 		heaterEffect.put(c, var);
 	}
 	
+	/**
+	 * the function that heats the marked locations with a given intensity multiplied by a coefficient 
+	 */
 	private void heat() {
 		for(Entry<Coord, Double> e : heaterEffect.entrySet()) {
 			map[e.getKey().x][e.getKey().y] += tauxChaufage * e.getValue(); 
@@ -165,6 +188,14 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 	}
 	
 	
+	/**
+	 * propagate acts as the physics of the house 
+	 * if one cell of the matrix is hotter (or colder) then this others, there will be a transfer
+	 * of heat with the neighbors of that cell, the amount is determined by the transfer coefficient 
+	 * 
+	 * on each run of the function, the cells will lose a certain amount of heat to the exterior determined 
+	 * by the dissipation coefficient 
+	 */
 	private void propagate() {
 		for(int i =0; i < size; i++) {
 			for(int j =0; j < size; j++) {
@@ -221,7 +252,9 @@ public class Simulator extends AbstractComponent implements SensorI, ActuatorI {
 			
 		}
 	}
-	
+	/**
+	 * giving the map of the house and the start temperature 
+	 */
 	private void initMap() {
 		for(int i =0; i < size; i++) {
 			for(int j =0; j < size; j++) {

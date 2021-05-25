@@ -5,8 +5,9 @@ import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
-import pstl.actuator.Actuator;
+import pstl.actuator.ActuatorI;
 import pstl.actuator.ActuatorInboundPort;
+import pstl.actuator.ActuatorPlugin;
 import pstl.behaviour.BehaviourInboundPort;
 import pstl.communication.CommunicationCI;
 import pstl.communication.CommunicationI;
@@ -19,8 +20,13 @@ import pstl.util.Coord;
 
 @OfferedInterfaces(offered = {CommunicationCI.class })
 @RequiredInterfaces(required = {CommunicationCI.class })
-
-public class Heater extends AbstractComponent implements CommunicationI{
+/**
+ * Heater is the abstraction of a heater, it acts as a wrapper by creating the sub-components 
+ * and making sure that they are linked correctly, as well as act as 
+ * a clock (2.5Hz), it is therefore modeled after an electronic component
+ *
+ */
+public class Heater extends AbstractComponent implements CommunicationI, ActuatorI{
 	
 	
 	public final String SUB_AIP_URI = ActuatorInboundPort.generatePortURI();
@@ -62,6 +68,12 @@ public class Heater extends AbstractComponent implements CommunicationI{
 	protected CommunicationInboundPort sub_cip;
 	
 			
+	
+	//plugin
+	protected final static String	APLUGIN = "aplugin";
+	ActuatorPlugin aplugin = new ActuatorPlugin(SUB_AIP_URI);;
+		
+		
 	protected Heater(Address address, Coord location, int room) throws Exception  {
 		super(1, 0);
 		this.address=address;
@@ -75,16 +87,30 @@ public class Heater extends AbstractComponent implements CommunicationI{
 		
 		
 	}
-	
+	/**
+	 * the function that creates the different subcomponents and passes the right uris from interconnection
+	 * @throws Exception
+	 */
 	protected void initialise() throws Exception {
 		
 		this.cip = new CommunicationInboundPort(CIP_URI, this);
 		this.cip.publishPort();
 		
-		this.SUB_ACTUATOR_URI = this.createSubcomponent(Actuator.class.getCanonicalName(), new Object[]{this.SUB_AIP_URI}) ;
+		
+		// actuator plugin
+		// although we find the sub-component model much more practical (and conformant to the article's view)
+		// we created these plugin's to demostrate that they can be used as well
+		aplugin.setPluginURI(APLUGIN); 
+		this.installPlugin(aplugin);
+				
+		//actuator sub-component
+		//this.SUB_ACTUATOR_URI = this.createSubcomponent(Actuator.class.getCanonicalName(), new Object[]{this.SUB_AIP_URI}) ;
+		//communicator sub-component
 		this.SUB_COM_URI = this.createSubcomponent(CommunicatorH.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_CIP_URI, this.CIP_URI, this.STATE_CIP_URI});
+		//state sub-component
 		this.SUB_STATE_URI = this.createSubcomponent(StateH.class.getCanonicalName(), new Object[]{this.address, this.location, this.room, this.SUB_STIP_URI, this.SUB_BIP_URI, this.SUB_AIP_URI, this.STATE_CIP_URI, this.SUB_CIP_URI}) ;
-
+		
+		//the Behaviour sub-component is created and stored on the server on request of State
 		
 		
 		this.createNewExecutorService(POOL_URI, NTHREADS, false) ;
@@ -94,12 +120,16 @@ public class Heater extends AbstractComponent implements CommunicationI{
 	}
 	
 	
+	
+	/**
+	 * start is in charge of getting the inboud port handles from the sub-components 
+	 */
 	@Override
 	public synchronized void start() throws ComponentStartException {
 		super.start();
 		
 		try {
-			this.findSubcomponentInboundPortFromURI(this.SUB_ACTUATOR_URI,this.SUB_AIP_URI) ;
+			//this.findSubcomponentInboundPortFromURI(this.SUB_ACTUATOR_URI,this.SUB_AIP_URI) ;
 			this.sub_cip =(CommunicationInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_COM_URI,this.SUB_CIP_URI) ;
 			this.sub_stip =(StateInboundPort)this.findSubcomponentInboundPortFromURI(this.SUB_STATE_URI,this.SUB_STIP_URI) ;
 			
@@ -123,7 +153,7 @@ public class Heater extends AbstractComponent implements CommunicationI{
 						try {
 
 							while(!stop) {
-
+							//this sleep acts as the 2.5Hz clock for the component state
 							Thread.sleep(400L) ;
 							nS();
 							}
@@ -170,6 +200,11 @@ public class Heater extends AbstractComponent implements CommunicationI{
 		this.sub_stip.newState();
 		
 	
+	}
+	@Override
+	public void act(Coord c, double var) throws Exception {
+		aplugin.act(c, var);
+		
 	}
 
 

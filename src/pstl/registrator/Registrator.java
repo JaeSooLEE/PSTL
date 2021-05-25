@@ -14,6 +14,12 @@ import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { RegistrationCI.class })
 @RequiredInterfaces(required = { RegistrationCI.class })
+
+/**
+ * Registrator is in charge of memorizing the heaters and passing the list of heaters
+ * in the same room to the thermometers
+ *
+ */
 public class Registrator extends AbstractComponent {
 
 	public static final String RegIP_URI = "rip-uri";
@@ -26,7 +32,9 @@ public class Registrator extends AbstractComponent {
 		this.rip.publishPort();
 	}
 
-	
+	/**
+	 * this function registers heaters in the map "heaters" 
+	 */
 	public void registerHeater(Address address, int room, String ipURI) throws Exception {
 		if(heaters.containsKey(room)) {
 			heaters.get(room).put(address, ipURI);
@@ -36,7 +44,9 @@ public class Registrator extends AbstractComponent {
 			heaters.put(room, tmp);
 		}
 	}
-
+	/**
+	 * this function is called by thermometer to get the list of heaters in the same room
+	 */
 	public Set<String> getHeaters(Address address, int room, Coord thermo) throws Exception {
 		Set<String> res = new HashSet<>();
 		

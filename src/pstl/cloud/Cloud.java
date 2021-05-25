@@ -21,7 +21,11 @@ import pstl.util.Address;
 
 @OfferedInterfaces(offered = {CommunicationCI.class, BehaviourCI.class })
 @RequiredInterfaces(required = {CommunicationCI.class })
-
+/**
+ * the Cloud class is an abstraction of a server on the cloud, this is not a component so is doesn't adhere 
+ * to the pulverization paradigm
+ *
+ */
 public class Cloud extends AbstractComponent implements CommunicationI, BehaviourI{
 	
 	protected final String COP_URI = CommunicationOutboundPort.generatePortURI();
@@ -36,10 +40,14 @@ public class Cloud extends AbstractComponent implements CommunicationI, Behaviou
 	Map<Address, Double> averages = new HashMap<Address, Double>(); 
 	Map<Integer, Map<Address,BehaviourInboundPort>> behaviours = new HashMap<Integer, Map<Address,BehaviourInboundPort>>(); 
 	
+	
+	// params of the system that maxes the heat if a door is open (referred to as safety here)
 	protected boolean safety = false;
 	protected int safetyRoom = 0;
 	protected int safetyThreshHold = 4;
 	
+	
+	//the lambdas for the behavior of both the Thermometer and the Heater
 	BehaviourI subBehaviourThermometer = (a,s, val)->s++%2+1;
 	BehaviourI subBehaviourHeater = new BehaviourI(){
 		@Override
@@ -79,7 +87,7 @@ public class Cloud extends AbstractComponent implements CommunicationI, Behaviou
 	@Override
 	public synchronized void execute() throws Exception {
 		super.execute();
-		
+		// we launch a thread to take care of toggling on the safety and then off after a certain time 
 		this.runTaskOnComponent(
 				POOL_URI,
 				new AbstractComponent.AbstractTask() {
@@ -116,6 +124,13 @@ public class Cloud extends AbstractComponent implements CommunicationI, Behaviou
 		this.bip.unpublishPort();
 		super.finalise();
 	}
+	
+	
+	/**
+	 * the function that toggles the safety on, uses the behavors stored on the servers directly to change 
+	 * their value of return to the thermometer and the heater 
+	 * @throws Exception
+	 */
 	public void toggleSafety() throws Exception {
 		
 		for(Entry<Address, BehaviourInboundPort> e :behaviours.get(safetyRoom).entrySet()) {
@@ -128,7 +143,10 @@ public class Cloud extends AbstractComponent implements CommunicationI, Behaviou
 		}
 		
 	}
-	
+	/**
+	 * the function that untoggles the safety
+	 * @throws Exception
+	 */
 	public void unToggleSafety() throws Exception {
 		for(Entry<Address, BehaviourInboundPort> e :behaviours.get(safetyRoom).entrySet()) {
 			if(e.getKey().isHeater()) {
@@ -139,7 +157,12 @@ public class Cloud extends AbstractComponent implements CommunicationI, Behaviou
 		}
 		
 	}
-
+	/**
+	 * the communicate function does mainly 2 things:
+	 * it logs the temperatures measured by the thermometers 
+	 * and it listens to Behaviour creation requests, it creates them and stores them 
+	 * under the right address and room
+	 */
 	@Override
 	public String communicate(Address address, String code, double val, String body) throws Exception {
 		if(address.isThermomerer() && code.equals("log")) {
@@ -204,7 +227,11 @@ public class Cloud extends AbstractComponent implements CommunicationI, Behaviou
 		return "OK";
 		
 	}
-
+	
+	/**
+	 * this function handles the requests of all components to their respective behaviors and 
+	 * directs the requests twords the correspoding Behaviour stored in the Cloud
+	 */
 	@Override
 	public int update(Address address, int state, double val) throws Exception {
 		for(Entry<Integer, Map<Address,BehaviourInboundPort>> e1: this.behaviours.entrySet()) {

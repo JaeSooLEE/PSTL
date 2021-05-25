@@ -11,9 +11,19 @@ import pstl.registrator.RegistrationOutboundPort;
 import pstl.registrator.Registrator;
 import pstl.util.Address;
 import pstl.util.Coord;
-
 @OfferedInterfaces(offered = { CommunicationCI.class })
 @RequiredInterfaces(required = {CommunicationCI.class, RegistrationCI.class,})
+/**
+ * the class Communicator is a reusable sub-component in charge of 
+ * the Communicating function, at creation it is given the inbound 
+ * port that is used later to contact it as well as the port uri of the 
+ * state so that it passes back the messages directed to it
+ * 
+ * the Communicator is also in charge of the Registration of the global component 
+ * 
+ * this class is specific to the Heater (different approach from using a lambda function)
+ *
+ */
 public class CommunicatorH extends AbstractComponent implements CommunicationI{
 	public final String ROP_URI = RegistrationOutboundPort.generatePortURI();
 	public final String CIP_URI;
@@ -31,6 +41,7 @@ public class CommunicatorH extends AbstractComponent implements CommunicationI{
 	protected CommunicationInboundPort cip;
 	protected CommunicationOutboundPort cloudCop;
 
+	
 	protected CommunicatorH(Address address, Coord location, int room, String CIP_URI, String PARENT_CIP_URI, String STATE_CIP_URI) {
 		super(1, 0);
 		
@@ -51,7 +62,12 @@ public class CommunicatorH extends AbstractComponent implements CommunicationI{
 		
 	}
 	
-	
+	/**
+	 * Initialise is in charge of creating and publishing the ports
+	 * the inbound and outbound ports are created with the provided URIs
+	 * it also has a port directed towards the Cloud
+	 * @throws Exception
+	 */
 	protected void initialise() throws Exception {
 		this.regop = new RegistrationOutboundPort(ROP_URI, this);
 		this.cop = new CommunicationOutboundPort(this.COP_URI, this);
@@ -76,8 +92,16 @@ public class CommunicatorH extends AbstractComponent implements CommunicationI{
 		this.doLateConnections();
 		super.execute();
 	}
-
-
+	
+	
+	/**
+	 * communicate is the main function of Communicator (should be reprogrammed at each use)
+	 * it is modeled after the TCP protocol, in the sense that it expects an "ACK" 
+	 * @param address the address of the sender 
+	 * @param the code of the operation 
+	 * @param val a useful numerical value used in diffrent cases
+	 * @param body the ody of the message  
+	 */
 	@Override
 	public String communicate(Address address, String code, double val, String body) throws Exception {
 		
@@ -86,7 +110,9 @@ public class CommunicatorH extends AbstractComponent implements CommunicationI{
 		}
 		return cop.communicate(address, code, val, body);
 	}
-	
+	/**
+	 * the registration function
+	 */
 	public void registerHeater(Coord c, String ipURI) throws Exception{
 		regop.registerHeater(address, room, ipURI);
 	}

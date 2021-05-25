@@ -22,6 +22,13 @@ import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { StateCI.class, CommunicationCI.class })
 @RequiredInterfaces(required = {StateCI.class, BehaviourCI.class, ActuatorCI.class, CommunicationCI.class})
+/**
+ * the class State is a reusable sub-component in charge of 
+ * the updating the state, getting and processing the inputs and deciding on the next action to take, 
+ * at creation it is given the inbound port that is used later to contact it  
+ *
+ *this class is specific to the Thermometer
+ */
 public class StateT extends AbstractComponent implements StateI, CommunicationI{
 	public final String STIP_URI;
 	public final String BIP_URI;
@@ -70,7 +77,13 @@ public class StateT extends AbstractComponent implements StateI, CommunicationI{
 		initBehaviour();
 		super.execute();
 	}
-
+	
+	
+	/**
+	 * Initialise is in charge of creating and publishing the ports
+	 * the inbound port is created with the provided URI
+	 * @throws Exception
+	 */
 	protected void initialise() throws Exception {
 		this.stip = new StateInboundPort(this.STIP_URI, this);
 		this.bop = new BehaviourOutboundPort(this.BOP_URI, this);
@@ -87,29 +100,44 @@ public class StateT extends AbstractComponent implements StateI, CommunicationI{
 		this.state=1;
 	}
 	
+	/**
+	 * newState is the main function of State (should be reprogrammed at each use) 
+	 * it examines the inputs (Communicator and Sensor), gets the next state from Behaviour, and takes action with Actuator  
+	 */
 	@Override
 	public void newState() throws Exception{
 	
 		if(ready) {
+		//using Behaviour to get the next state (an alternation between 1=sensing and 2=communication)
 		state = bop.update(address, state, myTemp);
 		
 
 
 		if(state == 1) {
+			//sensing function
 			getTemp();
 		}
 		if(state == 2) {
+			//communication function
 			broadcast();
 		}
 		}
 	}
 	
-	
+	/**
+	 * broadcast sends the last measurement to all the heaters in the room as well as to the cloud 
+	 * @throws Exception
+	 */
 	public void broadcast() throws Exception {
+		//sending the temperature to the heaters (code = "temp")
 		cop.communicate(address, "temp", myTemp, "");
+		//sending the temperature to the Cloud (code = "log")
 		cop.communicate(address, "log", myTemp, ""+this.room);
 	}
 	
+	/**
+	 * uses the Sensor to get the current temperature at this location
+	 */
 	public void getTemp() {
 		try {
 			this.myTemp = this.sop.sense(location);
@@ -120,8 +148,16 @@ public class StateT extends AbstractComponent implements StateI, CommunicationI{
 		}
 		
 	}
+	
+	/**
+	 * in our implementation, the Behaviour sub-component is located on the Cloud
+	 * this function uses Communicator to contact the Cloud, and requests the creation of a 
+	 * Behaviour sub-component 
+	 * @throws Exception
+	 */
 	public void initBehaviour() throws Exception {
 		String s = cop.communicate(address, "behaviour", this.room, BIP_URI);
+		if(!s.equals("OK")) {throw new Exception("communication failed");}
 		this.doPortConnection(BOP_URI, Cloud.BIP_URI, BehaviourConnector.class.getCanonicalName());
 		
 		this.ready = true;

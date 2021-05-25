@@ -25,6 +25,15 @@ import pstl.util.Coord;
 
 @OfferedInterfaces(offered = { StateCI.class, CommunicationCI.class })
 @RequiredInterfaces(required = {StateCI.class, BehaviourCI.class, ActuatorCI.class})
+
+/**
+ * the class State is a reusable sub-component in charge of 
+ * the updating the state, getting and processing the inputs and deciding on the next action to take, 
+ * at creation it is given the inbound port that is used later to contact it  
+ *
+ *
+ *this class is specific to the Heater
+ */
 public class StateH extends AbstractComponent implements StateI, CommunicationI{
 	public final String STIP_URI;
 	public final String BIP_URI;
@@ -35,6 +44,8 @@ public class StateH extends AbstractComponent implements StateI, CommunicationI{
 	public final String AOP_URI = ActuatorOutboundPort.generatePortURI();
 	public final String COP_URI = CommunicationOutboundPort.generatePortURI();
 	
+	
+	//ports of the other subcomponents 
 	protected StateInboundPort stip;
 	protected BehaviourOutboundPort bop;
 	protected ActuatorOutboundPort aop;
@@ -48,6 +59,7 @@ public class StateH extends AbstractComponent implements StateI, CommunicationI{
 	public int room;
 	private boolean ready = false;
 	
+	// a map of temperatures from the different thermometers in the room
 	Map<Address, Double> temps = new HashMap<Address, Double>(); 
 	
 	protected StateH(Address address, Coord location, int room, String STIP_URI, String BIP_URI, String AIP_URI, String CIP_URI, String COM_CIP_URI) {
@@ -72,6 +84,11 @@ public class StateH extends AbstractComponent implements StateI, CommunicationI{
 		
 	}
 	
+	/**
+	 * Initialise is in charge of creating and publishing the ports
+	 * the inbound port is created with the provided URI
+	 * @throws Exception
+	 */
 	protected void initialise() throws Exception {
 		this.stip = new StateInboundPort(this.STIP_URI, this);
 		this.bop = new BehaviourOutboundPort(this.BOP_URI, this);
@@ -95,20 +112,43 @@ public class StateH extends AbstractComponent implements StateI, CommunicationI{
 		super.execute();
 	}
 
+	/**
+	 * newState is the main function of State (should be reprogrammed at each use) 
+	 * it examines the inputs (Communicator and Sensor), gets the next state from Behaviour, and takes action with Actuator  
+	 */
 	@Override
 	public void newState() throws Exception {
 		if(ready) {
+			//getting the average temperature in the room
 			int val = (int)this.getAverageTemp();
+			//using Behaviour to get the next state depending on the inputs and the current state 
+			//in this case the state represents the intensity of the heater from 0 (off) to 5 (max)
 			state = bop.update(address, state, val);
 			logMessage(address +": mode " + state + " at " +location );
+		    // using the Actuator to take action (heat the room)
 			aop.act(location,state);
 		}
 	}
+	
+	/**
+	 * in our implementation, the Behaviour sub-component is located on the Cloud
+	 * this function uses Communicator to contact the Cloud, and requests the creation of a 
+	 * Behaviour sub-component 
+	 * @throws Exception
+	 */
 	public void initBehaviour() throws Exception {
+		//sending a create behaviour request (code = "behaviour") 
 		String s = cop.communicate(address, "behaviour", this.room, BIP_URI);
+		if(!s.equals("OK")) {throw new Exception("communication failed");}
 		this.doPortConnection(BOP_URI, Cloud.BIP_URI, BehaviourConnector.class.getCanonicalName());
 		this.ready = true;
 	}
+	
+	/**
+	 * calculates the average temperature of the room from the last measurement of all 
+	 * the thermometers in the same room 
+	 * @return
+	 */
 	private double getAverageTemp() {
 		if(temps.isEmpty()) {return 17;}
 		else {
@@ -125,6 +165,7 @@ public class StateH extends AbstractComponent implements StateI, CommunicationI{
 	
 	@Override
 	public String communicate(Address address, String code, double val, String body) throws Exception {
+		//recieving the temperature  from thermometers (code = "temp")
 		if(address.isThermomerer() && code.equals("temp")) {
 			temps.put(address, val);
 			return "OK";
